@@ -16,7 +16,7 @@ export default function ButtonDocs() {
   Click me
 </Button>`;
 
-  const installCode = `npx shadcn@latest add @oonkoo/button`;
+  const installCode = `npx shadcn@latest add "https://ui.oonkoo.com/r/button.json"`;
 
   const manualCode = `"use client";
 

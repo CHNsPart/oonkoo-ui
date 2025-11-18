@@ -48,9 +48,9 @@ export default function Home() {
                 <Code2 className="h-5 w-5 text-primary" />
                 CLI Installation
               </h3>
-              <div className="bg-muted p-3 rounded font-mono text-sm">
+              <div className="bg-muted p-3 rounded font-mono text-sm break-all">
                 <p className="text-primary">
-                  npx shadcn@latest add @oonkoo/button
+                  npx shadcn@latest add &quot;https://ui.oonkoo.com/r/button.json&quot;
                 </p>
               </div>
               <p className="text-sm text-muted-foreground mt-3">
