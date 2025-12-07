@@ -121,17 +121,91 @@ export async function initCommand(options: InitOptions) {
     const uiDir = config.aliases.ui.replace(/^@\//, "");
     const componentsDir = config.aliases.components.replace(/^@\//, "");
     const blocksDir = path.join(componentsDir, "blocks");
+    const utilsDir = path.dirname(config.aliases.utils.replace(/^@\//, ""));
 
     await fs.ensureDir(path.resolve(process.cwd(), uiDir));
     await fs.ensureDir(path.resolve(process.cwd(), blocksDir));
+    await fs.ensureDir(path.resolve(process.cwd(), utilsDir));
 
     logger.success("Created component directories");
+
+    // Create lib/utils.ts if it doesn't exist
+    const utilsPath = path.resolve(
+      process.cwd(),
+      config.aliases.utils.replace(/^@\//, "") + ".ts"
+    );
+
+    if (!fs.existsSync(utilsPath)) {
+      const utilsContent = `import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+`;
+      await fs.writeFile(utilsPath, utilsContent, "utf-8");
+      logger.success("Created lib/utils.ts");
+    }
 
     // Detect package manager
     const pm = detectPackageManager();
 
     logger.break();
     logger.success("OonkooUI initialized successfully!");
+    logger.break();
+
+    // Show dependency installation
+    console.log(chalk.dim("  Install required dependencies:"));
+    console.log();
+    if (pm === "npm") {
+      console.log(`  ${chalk.cyan("npm install clsx tailwind-merge")}`);
+    } else if (pm === "yarn") {
+      console.log(`  ${chalk.cyan("yarn add clsx tailwind-merge")}`);
+    } else if (pm === "pnpm") {
+      console.log(`  ${chalk.cyan("pnpm add clsx tailwind-merge")}`);
+    } else if (pm === "bun") {
+      console.log(`  ${chalk.cyan("bun add clsx tailwind-merge")}`);
+    }
+    console.log();
+
+    // Ask to install dependencies (skip if using -y flag)
+    if (!options.yes) {
+      const { installDeps } = await prompts({
+        type: "confirm",
+        name: "installDeps",
+        message: "Install dependencies now?",
+        initial: true,
+      });
+
+      if (installDeps) {
+        const depsSpinner = ora("Installing dependencies...").start();
+        try {
+          const { execa } = await import("execa");
+          if (pm === "npm") {
+            await execa("npm", ["install", "clsx", "tailwind-merge"], {
+              cwd: process.cwd(),
+            });
+          } else if (pm === "yarn") {
+            await execa("yarn", ["add", "clsx", "tailwind-merge"], {
+              cwd: process.cwd(),
+            });
+          } else if (pm === "pnpm") {
+            await execa("pnpm", ["add", "clsx", "tailwind-merge"], {
+              cwd: process.cwd(),
+            });
+          } else if (pm === "bun") {
+            await execa("bun", ["add", "clsx", "tailwind-merge"], {
+              cwd: process.cwd(),
+            });
+          }
+          depsSpinner.succeed("Dependencies installed");
+        } catch (error) {
+          depsSpinner.fail("Failed to install dependencies");
+          console.log(chalk.dim("  Please install them manually."));
+        }
+      }
+    }
+
     logger.break();
     console.log(chalk.dim("  You can now add components with:"));
     console.log();

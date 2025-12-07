@@ -132,10 +132,10 @@ export async function updateCommand(options: UpdateOptions) {
   for (const item of updatable) {
     try {
       const component = await getComponent(item.slug);
-      if (component) {
+      if (component && component.files[0]?.content) {
         const remoteHash = crypto
           .createHash("md5")
-          .update(component.code)
+          .update(component.files[0].content)
           .digest("hex");
 
         if (remoteHash !== item.hash) {
@@ -224,10 +224,16 @@ export async function updateCommand(options: UpdateOptions) {
     updateSpinner.text = `Updating ${item.slug}...`;
 
     try {
-      if (item.component.type === "ELEMENT") {
-        await writeComponentFile(item.slug, item.component.code, config);
+      const code = item.component.files[0]?.content;
+      if (!code) {
+        failed.push(item.slug);
+        continue;
+      }
+
+      if (item.component.type === "element") {
+        await writeComponentFile(item.slug, code, config);
       } else {
-        await writeBlockFile(item.slug, item.component.code, config);
+        await writeBlockFile(item.slug, code, config);
       }
       updated.push(item.slug);
     } catch {
