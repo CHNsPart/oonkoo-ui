@@ -1,0 +1,12 @@
+{
+  "name": "Pulse Button",
+  "slug": "pulse-button",
+  "description": "An animated button with a pulsating effect using Tailwind CSS",
+  "type": "element",
+  "tier": "free",
+  "category": "buttons",
+  "tags": ["button", "animation", "pulse", "tailwind"],
+  "dependencies": [],
+  "registryDependencies": [],
+  "cssSetup": "Add the following CSS to your globals.css file:\n\n@keyframes pulse {\n  0%, 100% {\n    box-shadow: 0 0 0 0 var(--pulse-color);\n  }\n  50% {\n    box-shadow: 0 0 0 8px var(--pulse-color);\n  }\n}\n\n.animate-pulse {\n  animation: pulse var(--duration, 1.5s) ease-out infinite;\n}"
+}

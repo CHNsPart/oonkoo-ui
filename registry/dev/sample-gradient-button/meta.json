@@ -1,0 +1,11 @@
+{
+  "name": "Nega Button",
+  "slug": "nega-button",
+  "description": "A beautiful animated nega button with hover effects and customizable colors.",
+  "type": "element",
+  "tier": "free",
+  "category": "buttons",
+  "tags": ["button", "gradient", "animated", "nega"],
+  "dependencies": ["framer-motion", "lucide-react"],
+  "registryDependencies": []
+}

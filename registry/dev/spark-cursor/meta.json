@@ -1,0 +1,62 @@
+{
+  "name": "Spark Cursor",
+  "slug": "spark-cursor",
+  "description": "A dazzling spark cursor effect that sparks on the user's mouse onClick, adding a magical touch to any webpage.",
+  "type": "element",
+  "tier": "free",
+  "category": "cursor",
+  "tags": ["cursor", "onClick", "animated"],
+  "dependencies": ["framer-motion"],
+  "registryDependencies": [],
+  "controls": [
+    {
+      "name": "sparkColor",
+      "label": "Spark Color",
+      "type": "color",
+      "defaultValue": "#4ade80"
+    },
+    {
+      "name": "sparkSize",
+      "label": "Spark Size",
+      "type": "range",
+      "defaultValue": 10,
+      "min": 5,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "name": "sparkRadius",
+      "label": "Spark Radius",
+      "type": "range",
+      "defaultValue": 15,
+      "min": 10,
+      "max": 50,
+      "step": 5
+    },
+    {
+      "name": "sparkCount",
+      "label": "Spark Count",
+      "type": "range",
+      "defaultValue": 8,
+      "min": 4,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "duration",
+      "label": "Duration (ms)",
+      "type": "range",
+      "defaultValue": 400,
+      "min": 200,
+      "max": 1000,
+      "step": 50
+    },
+    {
+      "name": "easing",
+      "label": "Easing",
+      "type": "select",
+      "defaultValue": "ease-out",
+      "options": ["linear", "ease-in", "ease-out", "ease-in-out"]
+    }
+  ]
+}

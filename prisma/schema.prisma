@@ -1,0 +1,298 @@
+// OonkooUI Prisma Schema
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserRole {
+  USER
+  CONTRIBUTOR
+  SELLER
+  ADMIN
+}
+
+enum SellerStatus {
+  NOT_ELIGIBLE
+  ELIGIBLE
+  PENDING_VERIFICATION
+  VERIFIED
+  SUSPENDED
+}
+
+enum ComponentType {
+  BLOCK      // Full section (Hero, Footer, etc.)
+  ELEMENT    // Single element (Button, Card, etc.)
+  TEMPLATE   // Full page template
+  ANIMATION  // Animation utility
+}
+
+enum ComponentTier {
+  FREE
+  PRO
+  COMMUNITY_FREE
+  COMMUNITY_PAID
+}
+
+enum ComponentCategory {
+  HERO
+  FEATURES
+  PRICING
+  TESTIMONIALS
+  FAQ
+  FOOTER
+  NAVIGATION
+  DASHBOARD
+  FORMS
+  CARDS
+  BUTTONS
+  ANIMATIONS
+  OTHER
+}
+
+enum ComponentStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  REJECTED
+  ARCHIVED
+}
+
+enum ComponentBadge {
+  DEFAULT
+  NEW
+  UPDATED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  UNPAID
+  TRIALING
+}
+
+enum PurchaseStatus {
+  PENDING
+  COMPLETED
+  REFUNDED
+  DISPUTED
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model User {
+  id              String        @id @default(cuid())
+  kindeId         String        @unique
+  email           String        @unique
+  name            String?
+  avatar          String?
+  bio             String?       @db.Text
+  githubUrl       String?
+  twitterUrl      String?
+  websiteUrl      String?
+  techStack       String[]      @default([])
+
+  role            UserRole      @default(USER)
+  sellerStatus    SellerStatus  @default(NOT_ELIGIBLE)
+  stripeConnectId String?       @unique
+  profileComplete Boolean       @default(false)
+
+  // Relations
+  subscription    Subscription?
+  components      Component[]   @relation("AuthorComponents")
+  upvotes         Upvote[]
+  purchases       Purchase[]    @relation("BuyerPurchases")
+  sales           Purchase[]    @relation("SellerPurchases")
+  badges          UserBadge[]
+  apiKeys         ApiKey[]
+  cliAuthSessions CliAuthSession[]
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([kindeId])
+  @@index([email])
+  @@index([sellerStatus])
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  stripeCustomerId     String             @unique
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  status               SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([stripeCustomerId])
+  @@index([status])
+}
+
+model Component {
+  id              String            @id @default(cuid())
+  authorId        String
+  author          User              @relation("AuthorComponents", fields: [authorId], references: [id], onDelete: Cascade)
+
+  name            String
+  slug            String            @unique
+  description     String            @db.Text
+  code            String            @db.Text
+  previewUrl      String?
+  previewImage    String?
+
+  type            ComponentType     @default(BLOCK)
+  tier            ComponentTier     @default(COMMUNITY_FREE)
+  category        ComponentCategory @default(OTHER)
+  tags            String[]          @default([])
+
+  // Dependencies for CLI resolution
+  dependencies    Json              @default("[]")  // ["@radix-ui/react-dialog", "framer-motion"]
+  devDependencies Json              @default("[]")
+  registryDeps    String[]          @default([])    // Other oonkoo components required
+  cssSetup        String?           @db.Text        // Additional CSS setup instructions
+
+  // Component metadata (controls, etc.)
+  metadata        Json?                             // Stores controls and other component configuration
+
+  // For paid community components
+  price           Decimal?          @db.Decimal(10, 2)
+
+  status          ComponentStatus   @default(DRAFT)
+  badge           ComponentBadge    @default(DEFAULT)
+  featured        Boolean           @default(false)
+
+  // Stats
+  downloads       Int               @default(0)
+  upvoteCount     Int               @default(0)     // Denormalized for performance
+
+  // Relations
+  upvotes         Upvote[]
+  purchases       Purchase[]
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  publishedAt     DateTime?
+
+  @@index([authorId])
+  @@index([slug])
+  @@index([tier])
+  @@index([category])
+  @@index([status])
+  @@index([upvoteCount])
+  @@index([downloads])
+  @@index([createdAt])
+}
+
+model Upvote {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  componentId String
+  component   Component @relation(fields: [componentId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, componentId])
+  @@index([componentId])
+  @@index([userId])
+}
+
+model Purchase {
+  id              String         @id @default(cuid())
+  buyerId         String
+  buyer           User           @relation("BuyerPurchases", fields: [buyerId], references: [id], onDelete: Cascade)
+  componentId     String
+  component       Component      @relation(fields: [componentId], references: [id], onDelete: Cascade)
+  sellerId        String
+  seller          User           @relation("SellerPurchases", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  amount          Decimal        @db.Decimal(10, 2)
+  platformFee     Decimal        @db.Decimal(10, 2)  // 20%
+  sellerAmount    Decimal        @db.Decimal(10, 2)  // 80%
+
+  stripePaymentId String         @unique
+  status          PurchaseStatus @default(PENDING)
+
+  createdAt       DateTime       @default(now())
+
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([componentId])
+  @@index([status])
+}
+
+model Badge {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  description String
+  icon        String      // Lucide icon name or URL
+  criteria    Json        // { type: "upvotes", threshold: 100 }
+
+  users       UserBadge[]
+
+  createdAt   DateTime    @default(now())
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId   String
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  awardedAt DateTime @default(now())
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+}
+
+// API Key for CLI authentication (Pro users)
+model ApiKey {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String    @default("Default")
+  key         String    @unique  // Hashed key
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+
+  createdAt   DateTime  @default(now())
+
+  @@index([key])
+  @@index([userId])
+}
+
+// CLI OAuth Session for browser-based authentication
+model CliAuthSession {
+  id          String    @id @default(cuid())
+  sessionId   String    @unique
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status      String    @default("PENDING") // PENDING, COMPLETED, EXPIRED
+  token       String?   // Generated token after successful auth
+  expiresAt   DateTime
+
+  createdAt   DateTime  @default(now())
+
+  @@index([sessionId])
+  @@index([expiresAt])
+}
