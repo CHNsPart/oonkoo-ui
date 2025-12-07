@@ -5,21 +5,33 @@ const componentSchema = z.object({
   name: z.string(),
   slug: z.string(),
   description: z.string(),
-  type: z.enum(["BLOCK", "ELEMENT", "TEMPLATE", "ANIMATION"]),
-  tier: z.enum(["FREE", "PRO", "COMMUNITY_FREE", "COMMUNITY_PAID"]),
+  type: z.enum(["block", "element", "template", "animation"]),
+  tier: z.enum(["free", "pro", "community_free", "community_paid"]),
   category: z.string(),
-  code: z.string(),
-  dependencies: z.array(z.string()).default([]),
-  devDependencies: z.array(z.string()).default([]),
-  registryDeps: z.array(z.string()).default([]),
-  files: z
-    .array(
-      z.object({
-        name: z.string(),
-        content: z.string(),
-      })
-    )
-    .optional(),
+  tags: z.array(z.string()).default([]),
+  author: z.object({
+    id: z.string(),
+    name: z.string(),
+  }),
+  files: z.array(
+    z.object({
+      name: z.string(),
+      path: z.string(),
+      content: z.string(),
+      type: z.string(),
+    })
+  ),
+  dependencies: z.array(z.string()).optional().default([]),
+  devDependencies: z.array(z.string()).optional().default([]),
+  registryDependencies: z.array(z.string()).optional().default([]),
+  cssSetup: z.string().optional(),
+  previewUrl: z.string().optional(),
+  previewImage: z.string().optional(),
+  downloads: z.number(),
+  upvotes: z.number(),
+  price: z.number().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
 export type RegistryComponent = z.infer<typeof componentSchema>;

@@ -126,18 +126,31 @@ export async function addCommand(
       }
 
       // Track dependencies
-      component.dependencies.forEach((dep) => allDependencies.add(dep));
-      component.devDependencies.forEach((dep) => allDevDependencies.add(dep));
-      component.registryDeps.forEach((dep) => registryDeps.add(dep));
+      if (component.dependencies) {
+        component.dependencies.forEach((dep) => allDependencies.add(dep));
+      }
+      if (component.devDependencies) {
+        component.devDependencies.forEach((dep) => allDevDependencies.add(dep));
+      }
+      if (component.registryDependencies) {
+        component.registryDependencies.forEach((dep) => registryDeps.add(dep));
+      }
+
+      // Extract code from files array
+      const code = component.files[0]?.content;
+      if (!code) {
+        failedComponents.push(slug);
+        continue;
+      }
 
       // Write the component file
       spinner.text = `Writing ${slug}...`;
 
       let filePath: string;
-      if (component.type === "ELEMENT") {
-        filePath = await writeComponentFile(slug, component.code, config);
+      if (component.type === "element") {
+        filePath = await writeComponentFile(slug, code, config);
       } else {
-        filePath = await writeBlockFile(slug, component.code, config);
+        filePath = await writeBlockFile(slug, code, config);
       }
 
       addedComponents.push(slug);
@@ -176,15 +189,22 @@ export async function addCommand(
         try {
           const component = await getComponent(dep);
           if (component) {
-            component.dependencies.forEach((d) => allDependencies.add(d));
-            component.devDependencies.forEach((d) => allDevDependencies.add(d));
-
-            if (component.type === "ELEMENT") {
-              await writeComponentFile(dep, component.code, config);
-            } else {
-              await writeBlockFile(dep, component.code, config);
+            if (component.dependencies) {
+              component.dependencies.forEach((d) => allDependencies.add(d));
             }
-            addedComponents.push(dep);
+            if (component.devDependencies) {
+              component.devDependencies.forEach((d) => allDevDependencies.add(d));
+            }
+
+            const code = component.files[0]?.content;
+            if (code) {
+              if (component.type === "element") {
+                await writeComponentFile(dep, code, config);
+              } else {
+                await writeBlockFile(dep, code, config);
+              }
+              addedComponents.push(dep);
+            }
           }
         } catch {
           // Silently skip failed deps
