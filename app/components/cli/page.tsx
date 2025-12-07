@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { ArrowRight, Terminal, Info, Sparkles } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, Info, Star, Download, GitFork, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/components/copy-button";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata = {
   title: "CLI - OonkooUI",
-  description: "Use the OonkooUI CLI or shadcn CLI to add components to your project.",
+  description: "Install components with the OonkooUI CLI - auto-setup, dependency management, and Pro access included.",
 };
 
 export default function CLIPage() {
@@ -39,8 +40,77 @@ export default function CLIPage() {
       <div className="space-y-4 mb-10">
         <h1 className="text-4xl font-bold tracking-tight">CLI</h1>
         <p className="text-xl text-muted-foreground">
-          Install OonkooUI components using either the shadcn CLI or our dedicated OonkooUI CLI.
+          Install OonkooUI components with zero configuration. The CLI handles setup, dependencies, and authentication automatically.
         </p>
+
+        {/* Badges */}
+        <div className="flex flex-wrap gap-2 pt-2">
+          <Link
+            href="https://github.com/CHNsPart/oonkoo-ui"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image
+              src="https://img.shields.io/github/stars/CHNsPart/oonkoo-ui?style=social"
+              alt="GitHub Stars"
+              width={100}
+              height={20}
+              className="h-5 w-auto"
+            />
+          </Link>
+          {/* <Link
+            href="https://github.com/CHNsPart/oonkoo-ui/fork"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image
+              src="https://img.shields.io/github/forks/CHNsPart/oonkoo-ui?style=social"
+              alt="GitHub Forks"
+              width={100}
+              height={20}
+              className="h-5 w-auto"
+            />
+          </Link> */}
+          <Link
+            href="https://www.npmjs.com/package/oonkoo"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image
+              src="https://img.shields.io/npm/v/oonkoo?style=flat-square&logo=npm&color=CB3837"
+              alt="npm version"
+              width={100}
+              height={20}
+              className="h-5 w-auto"
+            />
+          </Link>
+          <Link
+            href="https://www.npmjs.com/package/oonkoo"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image
+              src="https://img.shields.io/npm/dm/oonkoo?style=flat-square&logo=npm&color=CB3837"
+              alt="npm downloads"
+              width={120}
+              height={20}
+              className="h-5 w-auto"
+            />
+          </Link>
+          <Link
+            href="https://github.com/CHNsPart/oonkoo-ui/blob/main/LICENSE"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image
+              src="https://img.shields.io/github/license/CHNsPart/oonkoo-ui?style=flat-square"
+              alt="License"
+              width={80}
+              height={20}
+              className="h-5 w-auto"
+            />
+          </Link>
+        </div>
       </div>
 
       {/* About */}
@@ -64,37 +134,62 @@ export default function CLIPage() {
         </p>
 
         <div className="grid gap-6 md:grid-cols-2 mb-8">
-          {/* shadcn CLI Card */}
-          <div className="rounded-xl border bg-card p-6">
-            <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold">shadcn CLI</h3>
-              <Badge variant="secondary" className="text-xs">Recommended</Badge>
+          {/* OonkooUI CLI Card */}
+          <div className="rounded-xl border-2 border-primary/50 bg-card p-6 relative">
+            <Badge variant="default" className="absolute -top-3 left-4 text-xs">Recommended</Badge>
+            <div className="flex items-center gap-3 mb-3 mt-2">
+              <Image
+                src="/oonkoo-ui-icon.svg"
+                alt="OonkooUI"
+                width={52}
+                height={52}
+                className="block dark:hidden"
+              />
+              <Image
+                src="/oonkoo-ui-icon-darkmode.svg"
+                alt="OonkooUI"
+                width={52}
+                height={52}
+                className="hidden dark:block"
+              />
+              <h3 className="font-semibold">OonkooUI CLI</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Use the official shadcn CLI with our registry. Best if you&apos;re already using shadcn/ui.
+              Complete standalone solution with zero configuration required.
             </p>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>+ Works with existing shadcn setup</li>
-              <li>+ No additional CLI to install</li>
-              <li>+ Free components only</li>
+            <ul className="text-sm text-muted-foreground space-y-1.5">
+              <li>✓ Auto-creates lib/utils.ts</li>
+              <li>✓ Auto-installs dependencies</li>
+              <li>✓ Interactive component picker</li>
+              <li>✓ Component updates & sync</li>
+              <li>✓ Pro component access</li>
+              <li>✓ Download tracking</li>
+              <li>✓ npm, yarn, pnpm, bun support</li>
             </ul>
           </div>
 
-          {/* OonkooUI CLI Card */}
+          {/* shadcn CLI Card */}
           <div className="rounded-xl border bg-card p-6">
-            <div className="flex items-center gap-2 mb-3">
-              <Terminal className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold">OonkooUI CLI</h3>
-              <Badge variant="outline" className="text-xs">Full Access</Badge>
+            <div className="flex items-center gap-3 mb-3">
+              <Image
+                src="https://avatars.githubusercontent.com/u/139895814?s=280&v=4"
+                alt="shadcn/ui"
+                width={28}
+                height={28}
+                className="rounded-md"
+              />
+              <h3 className="font-semibold">shadcn CLI</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Our dedicated CLI with authentication for Pro components.
+              Use shadcn CLI if you already have components.json configured.
             </p>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>+ Access to Pro components</li>
-              <li>+ Interactive component picker</li>
-              <li>+ Update & sync components</li>
+            <ul className="text-sm text-muted-foreground space-y-1.5">
+              <li>✓ Works with existing shadcn setup</li>
+              <li>✓ Download tracking</li>
+              <li>✓ Free components only</li>
+              <li className="text-muted-foreground/60">✗ Requires components.json</li>
+              <li className="text-muted-foreground/60">✗ No Pro access</li>
+              <li className="text-muted-foreground/60">✗ No auto-setup</li>
             </ul>
           </div>
         </div>
@@ -102,8 +197,14 @@ export default function CLIPage() {
 
       {/* Method 1: shadcn CLI */}
       <section className="mb-10">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-          <Sparkles className="h-6 w-6 text-primary" />
+        <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+          <Image
+            src="https://avatars.githubusercontent.com/u/139895814?s=280&v=4"
+            alt="shadcn/ui"
+            width={32}
+            height={32}
+            className="rounded-md"
+          />
           Using shadcn CLI
         </h2>
 
@@ -112,7 +213,7 @@ export default function CLIPage() {
           <div>
             <h3 className="text-lg font-semibold mb-2">1. Add OonkooUI Registry</h3>
             <p className="text-muted-foreground mb-4">
-              Add the OonkooUI registry to your <code className="bg-muted px-1.5 py-0.5 rounded text-xs">components.json</code> file:
+              <strong>First</strong>, add the OonkooUI registry to your existing <code className="bg-muted px-1.5 py-0.5 rounded text-xs">components.json</code> file:
             </p>
             <div className="rounded-lg border overflow-hidden">
               <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/50">
@@ -123,33 +224,62 @@ export default function CLIPage() {
                 <pre className="text-sm font-mono text-zinc-300">{shadcnConfigExample}</pre>
               </div>
             </div>
+            <div className="mt-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3">
+              <p className="text-sm text-muted-foreground">
+                <strong>Note:</strong> This method only works if you have <code className="bg-muted px-1 py-0.5 rounded text-xs">components.json</code> configured. If you get a registry error, use the OonkooUI CLI instead.
+              </p>
+            </div>
           </div>
 
           {/* Step 2: Install Components */}
           <div>
-            <h3 className="text-lg font-semibold mb-2">2. Install Components</h3>
+            <h3 className="text-lg font-semibold mb-2">2. Install Components (Method A: Registry)</h3>
             <p className="text-muted-foreground mb-4">
-              Now you can install OonkooUI components using the shadcn CLI:
+              <strong>Then</strong>, install OonkooUI components using the registry prefix:
             </p>
             <div className="space-y-3">
               <div className="rounded-lg border overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/50">
                   <span className="text-sm text-muted-foreground">Install a component</span>
-                  <CopyButton text="npx shadcn@latest add @oonkoo/hero-gradient" variant="ghost" size="sm" />
+                  <CopyButton text="npx shadcn@latest add @oonkoo/pulse-button" variant="ghost" size="sm" />
                 </div>
                 <div className="bg-zinc-900 p-4">
-                  <code className="text-sm font-mono text-primary">npx shadcn@latest add @oonkoo/hero-gradient</code>
+                  <code className="text-sm font-mono text-primary">npx shadcn@latest add @oonkoo/pulse-button</code>
                 </div>
               </div>
               <div className="rounded-lg border overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/50">
                   <span className="text-sm text-muted-foreground">Install multiple components</span>
-                  <CopyButton text="npx shadcn@latest add @oonkoo/hero-gradient @oonkoo/pricing-cards" variant="ghost" size="sm" />
+                  <CopyButton text="npx shadcn@latest add @oonkoo/pulse-button @oonkoo/spark-cursor" variant="ghost" size="sm" />
                 </div>
                 <div className="bg-zinc-900 p-4">
-                  <code className="text-sm font-mono text-primary">npx shadcn@latest add @oonkoo/hero-gradient @oonkoo/pricing-cards</code>
+                  <code className="text-sm font-mono text-primary">npx shadcn@latest add @oonkoo/pulse-button @oonkoo/spark-cursor</code>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Step 3: Or Use Direct URL */}
+          <div>
+            <h3 className="text-lg font-semibold mb-2">2. Install Components (Method B: Direct URL)</h3>
+            <p className="text-muted-foreground mb-4">
+              <strong>Alternatively</strong>, install components using the direct URL (no registry config needed):
+            </p>
+            <div className="space-y-3">
+              <div className="rounded-lg border overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/50">
+                  <span className="text-sm text-muted-foreground">Install via URL</span>
+                  <CopyButton text='npx shadcn@latest add "https://ui.oonkoo.com/r/pulse-button"' variant="ghost" size="sm" />
+                </div>
+                <div className="bg-zinc-900 p-4">
+                  <code className="text-sm font-mono text-primary">npx shadcn@latest add &quot;https://ui.oonkoo.com/r/pulse-button&quot;</code>
+                </div>
+              </div>
+            </div>
+            <div className="mt-3 rounded-lg border border-green-500/20 bg-green-500/5 p-3">
+              <p className="text-sm text-muted-foreground">
+                <strong>Tip:</strong> Use this method if you don&apos;t want to configure the registry. Works without <code className="bg-muted px-1 py-0.5 rounded text-xs">components.json</code> changes!
+              </p>
             </div>
           </div>
         </div>
@@ -157,8 +287,13 @@ export default function CLIPage() {
 
       {/* Method 2: OonkooUI CLI */}
       <section className="mb-10">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-          <Terminal className="h-6 w-6 text-primary" />
+        <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+          <Image
+            src="/free-plan-badge.svg"
+            alt="OonkooUI"
+            width={32}
+            height={32}
+          />
           Using OonkooUI CLI
         </h2>
 
@@ -168,7 +303,7 @@ export default function CLIPage() {
           <div>
             <h3 className="text-lg font-semibold mb-2">init</h3>
             <p className="text-muted-foreground mb-4">
-              Initialize OonkooUI in your project. Creates the config file and sets up directories.
+              Initialize OonkooUI in your project with zero configuration. Automatically creates config, directories, and required utilities.
             </p>
             <div className="rounded-lg border overflow-hidden mb-3">
               <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/50">
@@ -179,6 +314,16 @@ export default function CLIPage() {
                 <code className="text-sm font-mono text-primary">npx oonkoo init</code>
               </div>
             </div>
+            <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3 mb-3">
+              <p className="text-sm font-medium text-green-700 dark:text-green-400 mb-2">What init does:</p>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>✓ Creates oonkoo.config.json</li>
+                <li>✓ Sets up component directories</li>
+                <li>✓ Auto-creates lib/utils.ts with cn() helper</li>
+                <li>✓ Installs clsx & tailwind-merge dependencies</li>
+                <li>✓ Detects your package manager (npm/yarn/pnpm/bun)</li>
+              </ul>
+            </div>
             <p className="text-sm text-muted-foreground">
               Options: <code className="bg-muted px-1.5 py-0.5 rounded text-xs">-y, --yes</code> - Skip prompts and use defaults
             </p>
@@ -188,25 +333,25 @@ export default function CLIPage() {
           <div>
             <h3 className="text-lg font-semibold mb-2">add</h3>
             <p className="text-muted-foreground mb-4">
-              Add components to your project. Fetches the component code and installs dependencies.
+              Add components to your project. Automatically fetches code, installs dependencies, and tracks downloads.
             </p>
             <div className="space-y-3 mb-3">
               <div className="rounded-lg border overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/50">
                   <span className="text-sm text-muted-foreground">Add a component</span>
-                  <CopyButton text="npx oonkoo add hero-gradient" variant="ghost" size="sm" />
+                  <CopyButton text="npx oonkoo add pulse-button" variant="ghost" size="sm" />
                 </div>
                 <div className="bg-zinc-900 p-4">
-                  <code className="text-sm font-mono text-primary">npx oonkoo add hero-gradient</code>
+                  <code className="text-sm font-mono text-primary">npx oonkoo add pulse-button</code>
                 </div>
               </div>
               <div className="rounded-lg border overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/50">
                   <span className="text-sm text-muted-foreground">Add multiple components</span>
-                  <CopyButton text="npx oonkoo add hero-gradient pricing-cards features-grid" variant="ghost" size="sm" />
+                  <CopyButton text="npx oonkoo add pulse-button spark-cursor" variant="ghost" size="sm" />
                 </div>
                 <div className="bg-zinc-900 p-4">
-                  <code className="text-sm font-mono text-primary">npx oonkoo add hero-gradient pricing-cards features-grid</code>
+                  <code className="text-sm font-mono text-primary">npx oonkoo add pulse-button spark-cursor</code>
                 </div>
               </div>
               <div className="rounded-lg border overflow-hidden">
@@ -219,8 +364,16 @@ export default function CLIPage() {
                 </div>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3 mb-3">
+              <p className="text-sm text-muted-foreground">
+                <strong>Available components:</strong> pulse-button, spark-cursor — <Link href="/components" className="text-primary hover:underline">Browse all</Link>
+              </p>
+            </div>
+            <p className="text-sm text-muted-foreground mb-2">
               Options: <code className="bg-muted px-1.5 py-0.5 rounded text-xs">-a, --all</code> Add all components | <code className="bg-muted px-1.5 py-0.5 rounded text-xs">-o, --overwrite</code> Overwrite existing | <code className="bg-muted px-1.5 py-0.5 rounded text-xs">-y, --yes</code> Skip confirmations
+            </p>
+            <p className="text-xs text-muted-foreground/70">
+              Works with: npm, yarn, pnpm, bun (auto-detected)
             </p>
           </div>
 
@@ -228,7 +381,7 @@ export default function CLIPage() {
           <div>
             <h3 className="text-lg font-semibold mb-2">list</h3>
             <p className="text-muted-foreground mb-4">
-              List all available components from the registry.
+              List all available components from the registry with filtering options.
             </p>
             <div className="space-y-3 mb-3">
               <div className="rounded-lg border overflow-hidden">
@@ -243,10 +396,10 @@ export default function CLIPage() {
               <div className="rounded-lg border overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/50">
                   <span className="text-sm text-muted-foreground">Filter by category</span>
-                  <CopyButton text="npx oonkoo list --category hero" variant="ghost" size="sm" />
+                  <CopyButton text="npx oonkoo list --category buttons" variant="ghost" size="sm" />
                 </div>
                 <div className="bg-zinc-900 p-4">
-                  <code className="text-sm font-mono text-primary">npx oonkoo list --category hero</code>
+                  <code className="text-sm font-mono text-primary">npx oonkoo list --category buttons</code>
                 </div>
               </div>
               <div className="rounded-lg border overflow-hidden">
@@ -258,6 +411,18 @@ export default function CLIPage() {
                   <code className="text-sm font-mono text-primary">npx oonkoo list --tier free</code>
                 </div>
               </div>
+            </div>
+            <div className="rounded-lg border bg-muted/30 p-3">
+              <p className="text-xs font-mono text-muted-foreground mb-2">Example output:</p>
+              <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap">
+{`buttons
+  pulse-button              free [element]
+  An animated button with pulsating effect
+
+other
+  spark-cursor              free [element]
+  Spark cursor effect on click`}
+              </pre>
             </div>
           </div>
 
@@ -351,11 +516,36 @@ export default function CLIPage() {
       {/* Requirements */}
       <section className="mb-10">
         <h2 className="text-2xl font-bold mb-4">Requirements</h2>
-        <ul className="space-y-2 text-muted-foreground">
-          <li>Node.js 18+</li>
-          <li>React project with Tailwind CSS</li>
-          <li>shadcn/ui initialized (for shadcn CLI method)</li>
-        </ul>
+        <div className="grid gap-6 md:grid-cols-2">
+          <div>
+            <h3 className="font-semibold mb-3">System Requirements</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>✓ Node.js 18+ (LTS recommended)</li>
+              <li>✓ npm, yarn, pnpm, or bun</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-3">Project Requirements</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>✓ React 18+ (React 19 supported)</li>
+              <li>✓ Tailwind CSS 3+ (v4 supported)</li>
+              <li>✓ TypeScript (recommended)</li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-6">
+          <h3 className="font-semibold mb-3">Supported Frameworks</h3>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="secondary">Next.js 14+</Badge>
+            <Badge variant="secondary">Vite + React</Badge>
+            <Badge variant="secondary">Remix</Badge>
+            <Badge variant="secondary">Create React App</Badge>
+            <Badge variant="secondary">Astro</Badge>
+          </div>
+          <p className="text-sm text-muted-foreground mt-3">
+            Works with any React framework that supports Tailwind CSS.
+          </p>
+        </div>
       </section>
 
       {/* Next Steps */}
