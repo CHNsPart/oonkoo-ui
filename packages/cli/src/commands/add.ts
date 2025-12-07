@@ -118,7 +118,7 @@ export async function addCommand(
     spinner.text = `Fetching ${slug}...`;
 
     try {
-      const component = await getComponent(slug);
+      const component = await getComponent(slug, true);
 
       if (!component) {
         failedComponents.push(slug);

@@ -103,10 +103,12 @@ export async function getRegistryIndex(): Promise<RegistryIndex | null> {
 }
 
 export async function getComponent(
-  slug: string
+  slug: string,
+  trackDownload = false
 ): Promise<RegistryComponent | null> {
   try {
-    const response = await fetchFromRegistry(`/${slug}`);
+    const endpoint = trackDownload ? `/${slug}?download=true` : `/${slug}`;
+    const response = await fetchFromRegistry(endpoint);
 
     if (!response.ok) {
       if (response.status === 401) {

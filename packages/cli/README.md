@@ -6,11 +6,11 @@ CLI for installing [OonkooUI](https://ui.oonkoo.com) components into your React 
 
 OonkooUI components can be installed using either the **shadcn CLI** or the **OonkooUI CLI**.
 
-### Method 1: shadcn CLI (Recommended for free components)
+### Method 1: shadcn CLI (For users already using shadcn/ui)
 
 If you're already using shadcn/ui, you can install OonkooUI components directly:
 
-1. Add the OonkooUI registry to your `components.json`:
+1. **First**, add the OonkooUI registry to your existing `components.json` file:
 
 ```json
 {
@@ -20,25 +20,32 @@ If you're already using shadcn/ui, you can install OonkooUI components directly:
 }
 ```
 
-2. Install components:
+2. **Then**, install components:
 
 ```bash
-npx shadcn@latest add @oonkoo/hero-gradient
+npx shadcn@latest add @oonkoo/pulse-button
+npx shadcn@latest add @oonkoo/spark-cursor
 ```
 
-### Method 2: OonkooUI CLI (Full access including Pro)
+**Note:** This method only works if you have `components.json` configured. If you get a registry error, use Method 2 instead.
 
-For Pro components and additional features, use our dedicated CLI:
+### Method 2: OonkooUI CLI (Recommended - works standalone)
+
+For a complete standalone solution with Pro component access:
 
 ```bash
 npx oonkoo init
 ```
 
-Or install globally:
+**No shadcn/ui setup required!** Works with any React + Tailwind project.
 
-```bash
-npm install -g oonkoo
-```
+**Package Manager Support:**
+- ✅ npm (default)
+- ✅ yarn
+- ✅ pnpm
+- ✅ bun
+
+The CLI auto-detects your package manager based on lock files.
 
 ## Usage
 
@@ -69,13 +76,33 @@ Browser-based login opens your browser for secure authentication via OAuth. API 
 
 ```bash
 # Add a single component
-npx oonkoo add hero-gradient
+npx oonkoo add pulse-button
 
 # Add multiple components
-npx oonkoo add hero-gradient features-grid pricing-cards
+npx oonkoo add pulse-button spark-cursor
 
-# Interactive component picker
+# Interactive component picker (shows all available components)
 npx oonkoo add
+```
+
+**Available components:**
+- `pulse-button` - Animated button with pulsating effect (Free)
+- `spark-cursor` - Dazzling spark cursor effect on click (Free)
+- More components available at [ui.oonkoo.com/components](https://ui.oonkoo.com/components)
+
+**Works with all package managers:**
+```bash
+# npm
+npx oonkoo add pulse-button
+
+# yarn
+yarn dlx oonkoo add pulse-button
+
+# pnpm
+pnpm dlx oonkoo add pulse-button
+
+# bun
+bunx oonkoo add pulse-button
 ```
 
 ### List available components
@@ -85,10 +112,21 @@ npx oonkoo add
 npx oonkoo list
 
 # Filter by category
-npx oonkoo list --category hero
+npx oonkoo list --category buttons
 
-# Filter by tier
+# Filter by tier (free, pro, community)
 npx oonkoo list --tier free
+```
+
+**Example output:**
+```
+buttons
+  pulse-button              free [element]
+  An animated button with a pulsating effect
+
+other
+  spark-cursor              free [element]
+  A dazzling spark cursor effect on click
 ```
 
 ### Update components
@@ -105,11 +143,17 @@ npx oonkoo update --all
 
 | Feature | shadcn CLI | OonkooUI CLI |
 |---------|-----------|--------------|
-| Free components | Yes | Yes |
-| Pro components | No | Yes (with auth) |
-| Interactive picker | No | Yes |
-| Component updates | No | Yes |
-| Setup | Add registry to components.json | Run `npx oonkoo init` |
+| Free components | ✅ Yes (requires components.json) | ✅ Yes |
+| Pro components | ❌ No | ✅ Yes (with auth) |
+| Interactive picker | ❌ No | ✅ Yes |
+| Component updates | ❌ No | ✅ Yes |
+| Download tracking | ✅ Yes | ✅ Yes |
+| Auto-create utils | ❌ No | ✅ Yes (lib/utils.ts) |
+| Auto-install deps | ❌ No | ✅ Yes |
+| Standalone setup | ❌ No | ✅ Yes |
+| Setup required | `components.json` | `npx oonkoo init` |
+
+**Recommendation:** Use the OonkooUI CLI for the best experience and full feature set.
 
 ## Configuration
 
@@ -139,8 +183,17 @@ OonkooUI uses [shadcn/ui](https://ui.shadcn.com) as the foundation for base UI p
 
 ## Requirements
 
-- Node.js 18+
-- React project with Tailwind CSS
+- **Node.js 18+** (LTS recommended)
+- **React 18+** (React 19 supported)
+- **Tailwind CSS 3+** (Tailwind CSS 4 supported)
+- **TypeScript** (recommended, but JavaScript works too)
+
+**Supported frameworks:**
+- Next.js 14+ (App Router & Pages Router)
+- Vite + React
+- Create React App
+- Remix
+- Any React framework with Tailwind CSS
 
 ## Links
 
