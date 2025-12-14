@@ -43,6 +43,8 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   --animate-pulse: pulse var(--duration) ease-out infinite;
+  --animate-marquee: marquee 15s linear infinite;
+  --animate-shine: shine var(--duration, 14s) ease-in-out infinite;
 
   @keyframes pulse {
     0%,
@@ -51,6 +53,27 @@
     }
     50% {
       box-shadow: 0 0 0 8px var(--pulse-color);
+    }
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0%);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes shine {
+    0% {
+      background-position: 0% 0%;
+    }
+    50% {
+      background-position: 100% 100%;
+    }
+    100% {
+      background-position: 0% 0%;
     }
   }
 }

@@ -21,7 +21,7 @@ export default async function ComponentsLayout({
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 min-w-0">
+        <main className="flex-1 min-w-0 w-full px-6 lg:px-8 xl:px-12 py-8">
           {children}
         </main>
 

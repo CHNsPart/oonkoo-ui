@@ -31,7 +31,7 @@ export default async function ComponentsPage() {
     .slice(0, 6);
 
   return (
-    <div className="py-8 px-6 lg:px-10 max-w-5xl">
+    <div className="w-full">
       {/* Hero Section */}
       <div className="space-y-4 mb-12">
         <Badge variant="secondary" className="gap-1">

@@ -18,20 +18,15 @@ export interface NavSection {
 export const mainNav: NavItem[] = [
   {
     title: "Components",
-    href: "/components/marketplace",
+    href: "/components",
   },
   {
     title: "Marketplace",
-    href: "/marketplace",
+    href: "/components/marketplace",
   },
   {
     title: "Pricing",
     href: "/pricing",
-  },
-  {
-    title: "Docs",
-    href: "/docs",
-    disabled: true,
   },
 ];
 

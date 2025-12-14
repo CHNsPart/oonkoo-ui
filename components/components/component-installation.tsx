@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Copy, Check, Terminal, FileCode } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CodeHighlighter } from "./code-highlighter";
@@ -45,15 +46,35 @@ export function ComponentInstallation({
   const [copiedCli, setCopiedCli] = useState(false);
   const [copiedManual, setCopiedManual] = useState(false);
   const [copiedDeps, setCopiedDeps] = useState(false);
+  const [packageManager, setPackageManager] = useState<"oonkoo" | "npm" | "yarn" | "bun" | "pnpm" | "shadcn">("oonkoo");
 
   // Strip Preview code - only show the actual component
   const cleanedCode = useMemo(() => stripPreviewCode(code), [code]);
 
-  const cliCommand = `npx oonkoo add ${slug}`;
-  const depsCommand = dependencies.length > 0 ? `npm install ${dependencies.join(" ")}` : "";
+  // Generate commands for different package managers
+  const commands = {
+    oonkoo: `npx oonkoo add ${slug}`,
+    npm: `npx oonkoo add ${slug}`,
+    yarn: `yarn dlx oonkoo add ${slug}`,
+    bun: `bunx --bun oonkoo add ${slug}`,
+    pnpm: `pnpm dlx oonkoo add ${slug}`,
+    shadcn: `npx shadcn@latest add @oonkoo/${slug}`,
+  };
+
+  const depsCommands = {
+    npm: dependencies.length > 0 ? `npm install ${dependencies.join(" ")}` : "",
+    yarn: dependencies.length > 0 ? `yarn add ${dependencies.join(" ")}` : "",
+    bun: dependencies.length > 0 ? `bun add ${dependencies.join(" ")}` : "",
+    pnpm: dependencies.length > 0 ? `pnpm add ${dependencies.join(" ")}` : "",
+  };
+
+  const currentCommand = commands[packageManager];
+  const currentDepsCommand = packageManager === "oonkoo" || packageManager === "shadcn"
+    ? ""
+    : depsCommands[packageManager as keyof typeof depsCommands];
 
   const handleCopyCli = async () => {
-    await navigator.clipboard.writeText(cliCommand);
+    await navigator.clipboard.writeText(currentCommand);
     setCopiedCli(true);
     setTimeout(() => setCopiedCli(false), 2000);
   };
@@ -66,9 +87,14 @@ export function ComponentInstallation({
   };
 
   const handleCopyDeps = async () => {
-    await navigator.clipboard.writeText(depsCommand);
+    await navigator.clipboard.writeText(currentDepsCommand);
     setCopiedDeps(true);
     setTimeout(() => setCopiedDeps(false), 2000);
+  };
+
+  const handleOpenInClaude = () => {
+    const claudeUrl = `https://claude.ai/new?q=${encodeURIComponent(`Help me integrate this component into my project:\n\n${currentCommand}\n\nComponent: ${slug}`)}`;
+    window.open(claudeUrl, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -89,13 +115,68 @@ export function ComponentInstallation({
           </TabsList>
 
           <TabsContent value="cli" className="mt-4 space-y-4">
+            {/* Package Manager Selector */}
+            <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
+              <div className="flex items-center gap-3 flex-wrap">
+                {/* CLI Tools Group */}
+                <div className="flex gap-1 bg-muted/50 p-1 rounded-lg">
+                  {(["oonkoo", "shadcn"] as const).map((pm) => (
+                    <button
+                      key={pm}
+                      onClick={() => setPackageManager(pm)}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                        packageManager === pm
+                          ? "bg-background text-primary shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {pm}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Package Managers Group */}
+                <div className="flex gap-1 bg-muted/50 p-1 rounded-lg">
+                  {(["npm", "yarn", "bun", "pnpm"] as const).map((pm) => (
+                    <button
+                      key={pm}
+                      onClick={() => setPackageManager(pm)}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                        packageManager === pm
+                          ? "bg-background text-primary shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {pm}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                onClick={handleOpenInClaude}
+                variant="outline"
+                size="sm"
+                className="gap-2 shrink-0"
+              >
+                <Image
+                  src="/claude.png"
+                  alt="Claude AI"
+                  width={16}
+                  height={16}
+                  className="rounded-sm"
+                />
+                Open in Claude
+              </Button>
+            </div>
+
             <div>
               <p className="text-sm text-muted-foreground mb-3">
                 Run the following command:
               </p>
               <div className="flex items-center gap-2 bg-muted rounded-lg border">
                 <code className="flex-1 px-4 py-3 font-mono text-sm text-primary">
-                  {cliCommand}
+                  {currentCommand}
                 </code>
                 <Button
                   variant="ghost"
@@ -112,14 +193,14 @@ export function ComponentInstallation({
               </div>
             </div>
 
-            {dependencies.length > 0 && (
+            {currentDepsCommand && (
               <div>
                 <p className="text-sm text-muted-foreground mb-3">
                   Install dependencies:
                 </p>
                 <div className="flex items-center gap-2 bg-muted rounded-lg border">
                   <code className="flex-1 px-4 py-3 font-mono text-sm">
-                    {depsCommand}
+                    {currentDepsCommand}
                   </code>
                   <Button
                     variant="ghost"
@@ -134,6 +215,22 @@ export function ComponentInstallation({
                     )}
                   </Button>
                 </div>
+              </div>
+            )}
+
+            {packageManager === "oonkoo" && (
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Recommended:</span> The oonkoo CLI automatically handles dependencies and setup. No manual installation needed!
+                </p>
+              </div>
+            )}
+
+            {packageManager === "shadcn" && (
+              <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Note:</span> Using shadcn CLI requires adding OonkooUI registry to your components.json. See the <a href="/components/cli" className="text-primary hover:underline">CLI documentation</a> for setup.
+                </p>
               </div>
             )}
           </TabsContent>
@@ -170,12 +267,16 @@ export function ComponentInstallation({
                 </p>
                 <div className="flex items-center gap-2 bg-muted rounded-lg border">
                   <code className="flex-1 px-4 py-3 font-mono text-sm">
-                    {depsCommand}
+                    npm install {dependencies.join(" ")}
                   </code>
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={handleCopyDeps}
+                    onClick={() => {
+                      navigator.clipboard.writeText(`npm install ${dependencies.join(" ")}`);
+                      setCopiedDeps(true);
+                      setTimeout(() => setCopiedDeps(false), 2000);
+                    }}
                     className="mr-2 h-8 w-8"
                   >
                     {copiedDeps ? (

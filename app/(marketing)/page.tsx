@@ -1,25 +1,81 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Blocks, Code2, Sparkles, Zap, Terminal } from "lucide-react";
+import { ArrowRight, Blocks, Code2, Sparkles, Zap, Terminal, Rocket } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CliCommand } from "@/components/cli-command";
+import LiquidEther from "@/components/ui/LiquidEther";
+import FlowingMenu from "@/components/ui/FlowingMenu";
+import { BorderBeam } from "@/components/ui/BorderBeam";
 
 export default function HomePage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 md:py-32">
-        {/* Background gradient */}
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background" />
+      <section className="relative overflow-hidden py-20 md:py-32 min-h-[600px]">
+        {/* Liquid Ether Background - Light Mode */}
+        <div className="absolute inset-0 -z-10 dark:hidden" style={{ width: '100%', height: '100%', position: 'absolute' }}>
+          <LiquidEther
+            colors={['#3CB371', '#60D394', '#2ECC71']}
+            mouseForce={20}
+            cursorSize={100}
+            isViscous={false}
+            viscous={30}
+            iterationsViscous={32}
+            iterationsPoisson={32}
+            dt={0.014}
+            BFECC={true}
+            resolution={0.5}
+            isBounce={false}
+            autoDemo={true}
+            autoSpeed={0.5}
+            autoIntensity={2.2}
+            takeoverDuration={0.25}
+            autoResumeDelay={3000}
+            autoRampDuration={0.6}
+          />
+        </div>
+        {/* Liquid Ether Background - Dark Mode */}
+        <div className="absolute inset-0 -z-10 hidden dark:block" style={{ width: '100%', height: '100%', position: 'absolute' }}>
+          <LiquidEther
+            colors={['#4ADE80', '#34D399', '#10B981']}
+            mouseForce={20}
+            cursorSize={100}
+            isViscous={false}
+            viscous={30}
+            iterationsViscous={32}
+            iterationsPoisson={32}
+            dt={0.014}
+            BFECC={true}
+            resolution={0.5}
+            isBounce={false}
+            autoDemo={true}
+            autoSpeed={0.5}
+            autoIntensity={2.2}
+            takeoverDuration={0.25}
+            autoResumeDelay={3000}
+            autoRampDuration={0.6}
+          />
+        </div>
+        {/* Subtle gradient overlay for text readability */}
+        <div className="absolute inset-0 -z-[5] bg-gradient-to-b from-background/30 via-background/60 to-background" />
 
         <div className="container">
           <div className="mx-auto max-w-4xl text-center">
-            <Badge variant="secondary" className="mb-4">
-              <Sparkles className="mr-1 h-3 w-3" />
-              Now in Public Beta
-            </Badge>
+            <div className="relative inline-block mb-4">
+              <Badge variant="secondary" className="relative overflow-hidden">
+                <Image src="/free-plan-badge.svg" alt="OonkooUI" width={14} height={14} className="mr-1.5" />
+                v1.1.2 • Available on npm
+                <BorderBeam
+                  size={80}
+                  initialOffset={10}
+                  duration={8}
+                  borderWidth={1.5}
+                  className="from-transparent via-primary to-transparent"
+                />
+              </Badge>
+            </div>
 
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
               Beautiful React Components for{" "}
@@ -40,7 +96,7 @@ export default function HomePage() {
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="/docs">
+                <Link href="/components/installation">
                   <Code2 className="mr-2 h-4 w-4" />
                   View Documentation
                 </Link>
@@ -55,41 +111,50 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 border-t">
-        <div className="container">
+      {/* Features Section - Full Width FlowingMenu */}
+      <section className="border-t">
+        <div className="container py-16">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Why Choose OonkooUI?
+            <Badge variant="secondary" className="mb-4">
+              <Sparkles className="mr-1 h-3 w-3" />
+              Premium Quality
+            </Badge>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl mb-4">
+              Production-Grade Components
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-              Built for developers who want beautiful, production-ready
-              components without the hassle.
+            <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
+              Built with industry-leading animation libraries and 3D engines. Ship stunning,
+              performant interfaces that compete with top-tier agencies.
             </p>
           </div>
+        </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <FeatureCard
-              icon={<Blocks className="h-6 w-6" />}
-              title="50+ Components"
-              description="A growing library of free and premium components for every use case."
-            />
-            <FeatureCard
-              icon={<Code2 className="h-6 w-6" />}
-              title="Copy & Paste"
-              description="No package to install. Just copy the code and customize it to your needs."
-            />
-            <FeatureCard
-              icon={<Zap className="h-6 w-6" />}
-              title="CLI Support"
-              description="Use our CLI to add components directly to your project with one command."
-            />
-            <FeatureCard
-              icon={<Sparkles className="h-6 w-6" />}
-              title="Framer Motion"
-              description="Smooth animations and transitions powered by Framer Motion."
-            />
-          </div>
+        {/* Full Width Interactive FlowingMenu */}
+        <div className="w-full overflow-hidden border-y" style={{ height: '500px' }}>
+          <FlowingMenu
+            items={[
+              {
+                link: "/components",
+                text: "Three.js 3D Components",
+                image: "/oonkoo-ui-icon.svg"
+              },
+              {
+                link: "/components",
+                text: "GSAP Powered Animations",
+                image: "/oonkoo-ui-icon.svg"
+              },
+              {
+                link: "/components",
+                text: "Framer Motion Interactions",
+                image: "/oonkoo-ui-icon.svg"
+              },
+              {
+                link: "/components",
+                text: "Ready-to-Ship Sections",
+                image: "/oonkoo-ui-icon.svg"
+              }
+            ]}
+          />
         </div>
       </section>
 
@@ -179,17 +244,20 @@ export default function HomePage() {
 
 function FeatureCard({
   icon,
+  iconDark,
   title,
   description,
 }: {
   icon: React.ReactNode;
+  iconDark?: React.ReactNode;
   title: string;
   description: string;
 }) {
   return (
-    <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+    <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm hover:shadow-md hover:border-primary/50 transition-all">
       <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
         {icon}
+        {iconDark}
       </div>
       <h3 className="font-semibold">{title}</h3>
       <p className="mt-2 text-sm text-muted-foreground">{description}</p>

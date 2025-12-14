@@ -35,7 +35,7 @@ export default function CLIPage() {
 }`;
 
   return (
-    <div className="py-8 px-6 lg:px-10 max-w-4xl">
+    <div className="w-full max-w-6xl">
       {/* Header */}
       <div className="space-y-4 mb-10">
         <h1 className="text-4xl font-bold tracking-tight">CLI</h1>

@@ -67,7 +67,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   const props = code ? extractPropsFromCode(code, componentNameForProps) : [];
 
   return (
-    <div className="py-8 px-6 lg:px-10 max-w-5xl">
+    <div className="w-full">
       {/* Header Section */}
       <div className="space-y-4 mb-8">
         <div className="flex items-start justify-between gap-4">
