@@ -120,11 +120,16 @@ const scope = {
 };
 
 function transformCode(code: string): string {
-  // Remove imports
-  let transformed = code.replace(/^import\s+.*?from\s+['"].*?['"];?\s*$/gm, "");
+  // Remove "use client" directive first
+  let transformed = code.replace(/['"]use client['"];?\s*/g, "");
 
-  // Remove "use client" directive
-  transformed = transformed.replace(/['"]use client['"];?\s*/g, "");
+  // Remove single-line imports
+  transformed = transformed.replace(/^import\s+.*?from\s+['"].*?['"];?\s*$/gm, "");
+
+  // Remove multi-line imports (like motion/react imports)
+  transformed = transformed.replace(/^import\s+\{[^}]*\}\s+from\s+['"].*?['"];?\s*$/gms, "");
+  transformed = transformed.replace(/^import\s+\*\s+as\s+\w+\s+from\s+['"].*?['"];?\s*$/gm, "");
+  transformed = transformed.replace(/^import\s+\w+\s+from\s+['"].*?['"];?\s*$/gm, "");
 
   // Remove TypeScript interfaces and types
   transformed = transformed.replace(/^interface\s+\w+\s*{[^}]*}/gm, "");

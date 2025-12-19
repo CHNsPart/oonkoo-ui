@@ -211,9 +211,9 @@ export default function CLIPage() {
         <div className="space-y-6">
           {/* Step 1: Add Registry */}
           <div>
-            <h3 className="text-lg font-semibold mb-2">1. Add OonkooUI Registry</h3>
+            <h3 className="text-lg font-semibold mb-2">1. Add OonkooUI to your registry</h3>
             <p className="text-muted-foreground mb-4">
-              <strong>First</strong>, add the OonkooUI registry to your existing <code className="bg-muted px-1.5 py-0.5 rounded text-xs">components.json</code> file:
+              Add the OonkooUI registry to your <code className="bg-muted px-1.5 py-0.5 rounded text-xs">components.json</code> file:
             </p>
             <div className="rounded-lg border overflow-hidden">
               <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/50">
@@ -224,18 +224,13 @@ export default function CLIPage() {
                 <pre className="text-sm font-mono text-zinc-300">{shadcnConfigExample}</pre>
               </div>
             </div>
-            <div className="mt-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3">
-              <p className="text-sm text-muted-foreground">
-                <strong>Note:</strong> This method only works if you have <code className="bg-muted px-1 py-0.5 rounded text-xs">components.json</code> configured. If you get a registry error, use the OonkooUI CLI instead.
-              </p>
-            </div>
           </div>
 
           {/* Step 2: Install Components */}
           <div>
-            <h3 className="text-lg font-semibold mb-2">2. Install Components (Method A: Registry)</h3>
+            <h3 className="text-lg font-semibold mb-2">2. Install Components</h3>
             <p className="text-muted-foreground mb-4">
-              <strong>Then</strong>, install OonkooUI components using the registry prefix:
+              Install free OonkooUI components using the namespace format:
             </p>
             <div className="space-y-3">
               <div className="rounded-lg border overflow-hidden">
@@ -257,28 +252,9 @@ export default function CLIPage() {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Step 3: Or Use Direct URL */}
-          <div>
-            <h3 className="text-lg font-semibold mb-2">2. Install Components (Method B: Direct URL)</h3>
-            <p className="text-muted-foreground mb-4">
-              <strong>Alternatively</strong>, install components using the direct URL (no registry config needed):
-            </p>
-            <div className="space-y-3">
-              <div className="rounded-lg border overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/50">
-                  <span className="text-sm text-muted-foreground">Install via URL</span>
-                  <CopyButton text='npx shadcn@latest add "https://ui.oonkoo.com/r/pulse-button"' variant="ghost" size="sm" />
-                </div>
-                <div className="bg-zinc-900 p-4">
-                  <code className="text-sm font-mono text-primary">npx shadcn@latest add &quot;https://ui.oonkoo.com/r/pulse-button&quot;</code>
-                </div>
-              </div>
-            </div>
-            <div className="mt-3 rounded-lg border border-green-500/20 bg-green-500/5 p-3">
+            <div className="mt-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3">
               <p className="text-sm text-muted-foreground">
-                <strong>Tip:</strong> Use this method if you don&apos;t want to configure the registry. Works without <code className="bg-muted px-1 py-0.5 rounded text-xs">components.json</code> changes!
+                <strong>Note:</strong> Pro components are only available via the OonkooUI CLI.
               </p>
             </div>
           </div>

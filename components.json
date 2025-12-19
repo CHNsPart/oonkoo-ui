@@ -19,8 +19,6 @@
     "hooks": "@/hooks"
   },
   "registries": {
-    "@oonkoo": "https://ui.oonkoo.com/r/{name}.json",
-    "@react-bits": "https://reactbits.dev/r/{name}.json",
-    "@aceternity": "https://ui.aceternity.com/registry/{name}.json"
+    "@oonkoo": "https://ui.oonkoo.com/r/{name}.json"
   }
 }

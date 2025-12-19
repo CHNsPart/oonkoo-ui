@@ -134,6 +134,7 @@ function generatePreviewHTML(name: string, code: string, isPro: boolean, control
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/framer-motion@11/dist/framer-motion.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -273,6 +274,20 @@ function generatePreviewHTML(name: string, code: string, isPro: boolean, control
     // React hooks destructuring
     const { useState, useEffect, useRef, useCallback, useMemo, useReducer, useContext } = React;
 
+    // Framer Motion destructuring
+    const {
+      motion,
+      AnimatePresence,
+      useMotionValue,
+      useSpring,
+      useTransform,
+      useAnimation,
+      useInView,
+      useScroll,
+      useMotionTemplate,
+      useReducedMotion,
+    } = window.Motion || {};
+
     // Mock components and utilities
     const cn = (...classes) => classes.filter(Boolean).join(' ');
 
@@ -338,13 +353,6 @@ function generatePreviewHTML(name: string, code: string, isPro: boolean, control
         outline: "border-border text-foreground",
       };
       return <span className={cn(baseStyles, variants[variant], className)} {...props}>{children}</span>;
-    };
-
-    // Mock motion component
-    const motion = {
-      div: ({ initial, animate, whileInView, transition, viewport, children, ...props }) => <div {...props}>{children}</div>,
-      h1: ({ initial, animate, transition, children, ...props }) => <h1 {...props}>{children}</h1>,
-      p: ({ initial, animate, transition, children, ...props }) => <p {...props}>{children}</p>,
     };
 
     // Mock Accordion components
@@ -434,11 +442,20 @@ function generatePreviewHTML(name: string, code: string, isPro: boolean, control
 }
 
 function cleanCodeForPreview(code: string): string {
-  // Remove imports
-  let cleaned = code.replace(/^import\s+.*?from\s+['"].*?['"];?\s*$/gm, "");
+  // Remove "use client" directive first
+  let cleaned = code.replace(/['"]use client['"];?\s*/g, "");
 
-  // Remove "use client" directive
-  cleaned = cleaned.replace(/['"]use client['"];?\s*/g, "");
+  // Remove all import statements (including multiline and mixed imports)
+  // Match: import React, { ... } from "react"
+  cleaned = cleaned.replace(/import\s+\w+\s*,\s*{[^}]*}\s+from\s+['"][^'"]+['"];?\s*/gs, "");
+  // Match: import { ... } from "..."
+  cleaned = cleaned.replace(/import\s+{[^}]*}\s+from\s+['"][^'"]+['"];?\s*/gs, "");
+  // Match: import * as ... from "..."
+  cleaned = cleaned.replace(/import\s+\*\s+as\s+\w+\s+from\s+['"][^'"]+['"];?\s*/g, "");
+  // Match: import ... from "..."
+  cleaned = cleaned.replace(/import\s+\w+\s+from\s+['"][^'"]+['"];?\s*/g, "");
+  // Match: import "..."
+  cleaned = cleaned.replace(/import\s+['"][^'"]+['"];?\s*/g, "");
 
   // Remove export keywords from function declarations
   cleaned = cleaned.replace(/export\s+default\s+function/g, "function");

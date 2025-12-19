@@ -1,0 +1,18 @@
+{
+  "name": "spark-cursor",
+  "type": "registry:ui",
+  "description": "A dazzling spark cursor effect that sparks on the user's mouse onClick, adding a magical touch to any webpage.",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/oonkoo/spark-cursor.tsx",
+      "type": "registry:ui"
+    }
+  ],
+  "tailwind": {
+    "config": {},
+    "plugins": []
+  }
+}

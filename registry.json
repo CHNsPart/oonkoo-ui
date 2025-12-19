@@ -1,0 +1,10 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "oonkoo",
+  "homepage": "https://ui.oonkoo.com",
+  "items": [
+    "spark-cursor",
+    "pulse-button",
+    "magnet-card"
+  ]
+}

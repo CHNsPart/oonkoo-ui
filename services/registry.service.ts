@@ -186,18 +186,30 @@ export class RegistryService {
       }
     }
 
-    // Parse controls from metadata
+    // Parse controls, props, and usage examples from metadata
     let parsedControls: RegistryComponent["controls"] = undefined;
+    let parsedProps: RegistryComponent["props"] = undefined;
+    let parsedUsageExamples: RegistryComponent["usageExamples"] = undefined;
     if (component.metadata) {
       try {
         const metadata = typeof component.metadata === "string"
           ? JSON.parse(component.metadata)
           : component.metadata;
-        if (metadata && metadata.controls) {
-          parsedControls = metadata.controls;
+        if (metadata) {
+          if (metadata.controls) {
+            parsedControls = metadata.controls;
+          }
+          if (metadata.props) {
+            parsedProps = metadata.props;
+          }
+          if (metadata.usageExamples) {
+            parsedUsageExamples = metadata.usageExamples;
+          }
         }
       } catch {
         parsedControls = undefined;
+        parsedProps = undefined;
+        parsedUsageExamples = undefined;
       }
     }
 
@@ -231,6 +243,8 @@ export class RegistryService {
       previewUrl: component.previewUrl ?? undefined,
       previewImage: component.previewImage ?? undefined,
       controls: parsedControls,
+      props: parsedProps,
+      usageExamples: parsedUsageExamples,
       downloads: component.downloads,
       upvotes: component.upvoteCount,
       price: component.price ? Number(component.price) : undefined,

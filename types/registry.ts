@@ -11,6 +11,20 @@ export interface ControlConfig {
   options?: string[];
 }
 
+export interface PropDefinition {
+  name: string;
+  type: string;
+  default?: string;
+  description: string;
+  required?: boolean;
+}
+
+export interface UsageExample {
+  title: string;
+  description?: string;
+  code: string;
+}
+
 export interface RegistryComponent {
   name: string;
   slug: string;
@@ -37,6 +51,10 @@ export interface RegistryComponent {
   previewImage?: string;
   // Interactive controls for live preview
   controls?: ControlConfig[];
+  // Component props documentation
+  props?: PropDefinition[];
+  // Usage examples
+  usageExamples?: UsageExample[];
   // Stats
   downloads: number;
   upvotes: number;

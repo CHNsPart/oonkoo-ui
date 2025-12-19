@@ -29,8 +29,6 @@ export function PropsTable({ componentName, props }: PropsTableProps) {
                 <TableHead className="font-semibold">Prop</TableHead>
                 <TableHead className="font-semibold">Type</TableHead>
                 <TableHead className="font-semibold">Default</TableHead>
-                <TableHead className="font-semibold">Description</TableHead>
-                <TableHead className="font-semibold text-right">Required</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -46,16 +44,6 @@ export function PropsTable({ componentName, props }: PropsTableProps) {
                   </TableCell>
                   <TableCell className="font-mono text-sm text-muted-foreground">
                     {prop.default || "-"}
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {prop.description}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {prop.required ? (
-                      <Badge variant="outline" className="text-xs">Yes</Badge>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">No</span>
-                    )}
                   </TableCell>
                 </TableRow>
               ))}

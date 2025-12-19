@@ -1,6 +1,6 @@
 {
   "name": "oonkoo",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "CLI for installing OonkooUI components",
   "type": "module",
   "bin": {

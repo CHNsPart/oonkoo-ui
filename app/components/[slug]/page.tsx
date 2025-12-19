@@ -11,6 +11,7 @@ import { ComponentPreview } from "@/components/components/component-preview";
 import { ComponentInstallation } from "@/components/components/component-installation";
 import { PropsTable } from "@/components/components/props-table";
 import { extractPropsFromCode } from "@/lib/extract-props";
+import { extractPreviewCode } from "@/lib/extract-preview";
 
 interface ComponentPageProps {
   params: Promise<{
@@ -64,7 +65,18 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
 
   // Extract props from code for the props table
   const componentNameForProps = component.name.replace(/\s+/g, "");
-  const props = code ? extractPropsFromCode(code, componentNameForProps) : [];
+  const autoExtractedProps = code ? extractPropsFromCode(code, componentNameForProps) : [];
+
+  // Merge manual props from metadata with auto-extracted props
+  // Manual props override auto-extracted props
+  const props = component.props || autoExtractedProps;
+
+  // Extract and prepare usage code (import + preview)
+  const previewCode = code ? extractPreviewCode(code) : '';
+  const usageCode = previewCode
+    ? `import { ${componentNameForProps} } from "@/components/oonkoo/${component.slug}"\n\n${previewCode}`
+    : `import { ${componentNameForProps} } from "@/components/oonkoo/${component.slug}"\n\n<${componentNameForProps}>\n  {/* Your content */}\n</${componentNameForProps}>`;
+  const highlightedUsage = await highlightCode(usageCode);
 
   return (
     <div className="w-full">
@@ -171,13 +183,14 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
         <h2 className="text-2xl font-bold mb-4">Usage</h2>
         <div className="rounded-lg border bg-muted/30 p-4">
           <p className="text-sm text-muted-foreground mb-3">
-            Import the component in your file:
+            Copy and paste the following code to use this component:
           </p>
-          <pre className="bg-background rounded-md p-3 text-sm font-mono overflow-x-auto">
-            <code>
-              {`import { ${componentNameForProps} } from "@/components/oonkoo/${component.slug}"`}
-            </code>
-          </pre>
+          <div
+            className="rounded-md overflow-x-auto [&_pre]:!bg-background [&_pre]:!p-3 [&_pre]:!m-0"
+            dangerouslySetInnerHTML={{
+              __html: highlightedUsage,
+            }}
+          />
         </div>
       </section>
 

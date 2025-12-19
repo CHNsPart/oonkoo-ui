@@ -58,5 +58,22 @@
       "defaultValue": "ease-out",
       "options": ["linear", "ease-in", "ease-out", "ease-in-out"]
     }
+  ],
+  "usageExamples": [
+    {
+      "title": "Basic Usage",
+      "description": "Wrap any content to add click spark effects",
+      "code": "<SparkCursor>\n  <div className=\"p-8 border rounded-lg\">\n    Click anywhere in this area\n  </div>\n</SparkCursor>"
+    },
+    {
+      "title": "Custom Spark Color",
+      "description": "Customize the spark color and size",
+      "code": "<SparkCursor sparkColor=\"#ff6b6b\" sparkSize={15}>\n  <button className=\"px-6 py-3 bg-red-500 text-white rounded-lg\">\n    Click for Red Sparks\n  </button>\n</SparkCursor>"
+    },
+    {
+      "title": "Advanced Configuration",
+      "description": "Fine-tune all spark properties for the perfect effect",
+      "code": "<SparkCursor\n  sparkColor=\"#ffd700\"\n  sparkSize={12}\n  sparkRadius={25}\n  sparkCount={12}\n  duration={600}\n  easing=\"ease-out\"\n>\n  <div className=\"w-full h-64 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center\">\n    <p className=\"text-white text-xl font-bold\">Golden Sparks!</p>\n  </div>\n</SparkCursor>"
+    }
   ]
 }

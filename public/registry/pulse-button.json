@@ -1,0 +1,36 @@
+{
+  "name": "pulse-button",
+  "type": "registry:ui",
+  "description": "An animated button with a pulsating effect using Tailwind CSS",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/oonkoo/pulse-button.tsx",
+      "type": "registry:ui"
+    }
+  ],
+  "tailwind": {
+    "config": {
+      "theme": {
+        "extend": {
+          "keyframes": {
+            "pulse": {
+              "0%, 100%": {
+                "boxShadow": "0 0 0 0 var(--pulse-color)"
+              },
+              "50%": {
+                "boxShadow": "0 0 0 8px var(--pulse-color)"
+              }
+            }
+          },
+          "animation": {
+            "pulse": "pulse var(--duration, 1.5s) ease-out infinite"
+          }
+        }
+      }
+    },
+    "plugins": []
+  }
+}

@@ -80,7 +80,7 @@ export async function listCommand(options: ListOptions) {
   // Show filter hints
   if (!options.category && !options.tier) {
     console.log(chalk.dim("  Filter by category:"));
-    console.log(`  ${chalk.cyan("oonkoo list --category hero")}`);
+    console.log(`  ${chalk.cyan("oonkoo list --category buttons")}`);
     console.log();
     console.log(chalk.dim("  Filter by tier:"));
     console.log(`  ${chalk.cyan("oonkoo list --tier free")}`);

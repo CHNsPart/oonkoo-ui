@@ -1,9 +1,7 @@
-"use client"
-
 import React, { useRef, useEffect, useCallback } from 'react';
 
 /**
- * SparkCursor component props
+ * ClickSpark component props
  * @param sparkColor Color of the spark particles (hex, rgb, or CSS color)
  * @param sparkSize Initial size of each spark particle in pixels
  * @param sparkRadius Maximum radius the sparks will travel from click point
@@ -13,15 +11,15 @@ import React, { useRef, useEffect, useCallback } from 'react';
  * @param extraScale Additional scaling factor for spark travel distance
  * @param children Child elements to render inside the clickable area
  */
-interface SparkCursorProps {
-  sparkColor?: string; // Color of the spark particles
-  sparkSize?: number; // Initial size of each spark particle
-  sparkRadius?: number; // Maximum radius the sparks will travel
-  sparkCount?: number; // Number of spark particles per click
-  duration?: number; // Animation duration in milliseconds
-  easing?: 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out'; // Easing function
-  extraScale?: number; // Scaling factor for travel distance
-  children?: React.ReactNode; // Child elements
+interface ClickSparkProps {
+  sparkColor?: string;
+  sparkSize?: number;
+  sparkRadius?: number;
+  sparkCount?: number;
+  duration?: number;
+  easing?: 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out';
+  extraScale?: number;
+  children?: React.ReactNode;
 }
 
 interface Spark {
@@ -31,7 +29,7 @@ interface Spark {
   startTime: number;
 }
 
-export const SparkCursor: React.FC<SparkCursorProps> = ({
+export const ClickSpark: React.FC<ClickSparkProps> = ({
   sparkColor = '#fff',
   sparkSize = 10,
   sparkRadius = 15,
@@ -170,34 +168,3 @@ export const SparkCursor: React.FC<SparkCursorProps> = ({
     </div>
   );
 };
-
-// Preview wrapper for the playground
-export default function Preview(props: Partial<SparkCursorProps> = {}) {
-  // Merge default props with control values
-  const {
-    sparkColor = '#4ade80',
-    sparkSize = 10,
-    sparkRadius = 15,
-    sparkCount = 8,
-    duration = 400,
-    easing = 'ease-out',
-    extraScale = 1.0,
-  } = props;
-
-  return (
-    <div className="min-h-[400px] w-full flex flex-col items-center justify-center bg-background p-8">
-      <p className='p-4 absolute font-black text-2xl text-white/20'>Click anywhere in the box</p>
-      <div className="flex flex-col items-center gap-4 w-full h-96 border rounded-lg overflow-hidden">
-        <SparkCursor
-          sparkColor={sparkColor}
-          sparkSize={sparkSize}
-          sparkRadius={sparkRadius}
-          sparkCount={sparkCount}
-          duration={duration}
-          easing={easing}
-          extraScale={extraScale}
-        />
-      </div>
-    </div>
-  );
-}

@@ -120,22 +120,32 @@ export function ComponentInstallation({
               <div className="flex items-center gap-3 flex-wrap">
                 {/* CLI Tools Group */}
                 <div className="flex gap-1 bg-muted/50 p-1 rounded-lg">
-                  {(["oonkoo", "shadcn"] as const).map((pm) => (
+                  <button
+                    onClick={() => setPackageManager("oonkoo")}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                      packageManager === "oonkoo"
+                        ? "bg-background text-primary shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    oonkoo
+                  </button>
+                  {/* Show shadcn only for free components */}
+                  {!isPro && (
                     <button
-                      key={pm}
-                      onClick={() => setPackageManager(pm)}
+                      onClick={() => setPackageManager("shadcn")}
                       className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                        packageManager === pm
+                        packageManager === "shadcn"
                           ? "bg-background text-primary shadow-sm"
                           : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      {pm}
+                      shadcn
                     </button>
-                  ))}
+                  )}
                 </div>
 
-                {/* Package Managers Group */}
+                {/* Package Managers Group - for oonkoo CLI */}
                 <div className="flex gap-1 bg-muted/50 p-1 rounded-lg">
                   {(["npm", "yarn", "bun", "pnpm"] as const).map((pm) => (
                     <button
@@ -218,21 +228,6 @@ export function ComponentInstallation({
               </div>
             )}
 
-            {packageManager === "oonkoo" && (
-              <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-medium text-foreground">Recommended:</span> The oonkoo CLI automatically handles dependencies and setup. No manual installation needed!
-                </p>
-              </div>
-            )}
-
-            {packageManager === "shadcn" && (
-              <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-medium text-foreground">Note:</span> Using shadcn CLI requires adding OonkooUI registry to your components.json. See the <a href="/components/cli" className="text-primary hover:underline">CLI documentation</a> for setup.
-                </p>
-              </div>
-            )}
           </TabsContent>
 
           <TabsContent value="manual" className="mt-4 space-y-4">
