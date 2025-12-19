@@ -19,6 +19,7 @@
 
 # production
 /build
+/registry/dev
 
 # misc
 .DS_Store
