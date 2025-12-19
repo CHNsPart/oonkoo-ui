@@ -1,0 +1,38 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "pulse-button",
+  "type": "registry:ui",
+  "title": "Pulse Button",
+  "description": "An animated button with a pulsating effect using Tailwind CSS",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": ["utils"],
+  "files": [
+    {
+      "path": "components/oonkoo/pulse-button.tsx",
+      "type": "registry:ui",
+      "content": "\"use client\"\n\nimport React from \"react\";\nimport { cn } from \"@/lib/utils\";\n\n/**\n * PulseButton component props\n * @param pulseColor The color of the pulse effect (hex, rgb, or CSS color)\n * @param duration Animation duration (e.g., \"1.5s\", \"2000ms\")\n */\ninterface PulseButtonProps\n  extends React.ButtonHTMLAttributes<HTMLButtonElement> {\n  pulseColor?: string; // The color of the pulse effect\n  duration?: string; // Animation duration\n}\n\nexport const PulseButton = React.forwardRef<\n  HTMLButtonElement,\n  PulseButtonProps\n>(\n  (\n    {\n      className,\n      children,\n      pulseColor = \"#808080\",\n      duration = \"1.5s\",\n      ...props\n    },\n    ref\n  ) => {\n    return (\n      <button\n        ref={ref}\n        className={cn(\n          \"bg-primary text-primary-foreground relative flex cursor-pointer items-center justify-center rounded-lg px-4 py-2 text-center\",\n          className\n        )}\n        style={\n          {\n            \"--pulse-color\": pulseColor,\n            \"--duration\": duration,\n          } as React.CSSProperties\n        }\n        {...props}\n      >\n        <div className=\"relative z-10\">{children}</div>\n        <div className=\"absolute top-1/2 left-1/2 size-full -translate-x-1/2 -translate-y-1/2 animate-pulse-button rounded-lg bg-inherit\" />\n      </button>\n    );\n  }\n);\n\nPulseButton.displayName = \"PulseButton\";"
+    }
+  ],
+  "tailwind": {
+    "config": {
+      "theme": {
+        "extend": {
+          "keyframes": {
+            "pulse-button": {
+              "0%, 100%": {
+                "boxShadow": "0 0 0 0 var(--pulse-color)"
+              },
+              "50%": {
+                "boxShadow": "0 0 0 8px var(--pulse-color)"
+              }
+            }
+          },
+          "animation": {
+            "pulse-button": "pulse-button var(--duration, 1.5s) ease-out infinite"
+          }
+        }
+      }
+    }
+  }
+}
