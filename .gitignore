@@ -19,7 +19,8 @@
 
 # production
 /build
-/registry/dev
+registry/dev
+registry.json
 
 # misc
 .DS_Store
