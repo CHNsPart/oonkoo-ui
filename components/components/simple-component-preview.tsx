@@ -33,7 +33,7 @@ export function SimpleComponentPreview({
         <div className="w-full h-full min-h-[450px]">
           <iframe
             key={key}
-            src={`/api/preview/${slug}`}
+            src={`/preview/${slug}`}
             className="w-full h-full border-0 rounded-lg"
             style={{ minHeight: "450px" }}
             title={`${name} preview`}

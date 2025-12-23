@@ -1,13 +1,21 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { RegistryService } from "@/services/registry.service";
 import { DocsSidebar } from "@/components/components/docs-sidebar";
 import { DocsRightSidebar } from "@/components/components/docs-right-sidebar";
 import { DocsHeader } from "@/components/components/docs-header";
+
+// Force dynamic rendering - no caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function ComponentsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Disable all caching for sidebar data
+  noStore();
+
   // Fetch all components for the sidebar
   const { components } = await RegistryService.getIndex({ limit: 500 });
 

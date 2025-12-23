@@ -88,26 +88,12 @@ export function ComponentPreview({
         </div>
 
         <TabsContent value="preview" className="mt-4">
-          {code ? (
-            <LiveComponentPreview
-              slug={slug}
-              name={name}
-              controlValues={controlValues}
-            />
-          ) : (
-            <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-12 text-center">
-              <div className="mx-auto w-16 h-16 rounded-full bg-purple-500/10 flex items-center justify-center mb-4">
-                <Lock className="h-8 w-8 text-purple-500" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Pro Component</h3>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                This component requires an OonkooUI Pro subscription to preview and access the source code.
-              </p>
-              <Button asChild>
-                <a href="/pricing">Upgrade to Pro</a>
-              </Button>
-            </div>
-          )}
+          {/* Preview is visible to ALL users, even for Pro components */}
+          <LiveComponentPreview
+            slug={slug}
+            name={name}
+            controlValues={controlValues}
+          />
         </TabsContent>
 
         <TabsContent value="code" className="mt-4">

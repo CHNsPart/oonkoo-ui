@@ -13,7 +13,10 @@ export async function middleware(request: NextRequest) {
 
   // Add security headers
   // Allow iframe embedding for preview routes
-  if (request.nextUrl.pathname.startsWith("/api/preview")) {
+  if (
+    request.nextUrl.pathname.startsWith("/api/preview") ||
+    request.nextUrl.pathname.startsWith("/preview")
+  ) {
     response.headers.set("X-Frame-Options", "SAMEORIGIN");
   } else {
     response.headers.set("X-Frame-Options", "DENY");

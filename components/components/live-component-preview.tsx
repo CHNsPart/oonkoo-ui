@@ -130,7 +130,7 @@ export function LiveComponentPreview({ slug, name, className, controlValues = {}
   return (
     <div
       className={cn(
-        "rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden",
+        "rounded-xl border border-stone-800 bg-stone-950 overflow-hidden",
         isFullscreen && "fixed inset-4 z-50 shadow-2xl",
         className
       )}
@@ -212,8 +212,8 @@ export function LiveComponentPreview({ slug, name, className, controlValues = {}
       <div
         ref={containerRef}
         className={cn(
-          "bg-zinc-950 overflow-auto",
-          isFullscreen ? "h-[calc(100%-52px)]" : "min-h-[450px]"
+          "bg-zinc-950 overflow-none relative",
+          isFullscreen ? "h-[calc(100%-52px)]" : "min-h-full h-[600px]",
         )}
       >
         {/* Background pattern */}
@@ -224,7 +224,7 @@ export function LiveComponentPreview({ slug, name, className, controlValues = {}
           )}
           style={{
             ...backgroundPatterns[backgroundPattern].style,
-            minHeight: isFullscreen ? "100%" : "450px",
+            minHeight: isFullscreen ? "100%" : "600px",
           }}
         >
           {/* Preview container with iframe */}
@@ -251,14 +251,14 @@ export function LiveComponentPreview({ slug, name, className, controlValues = {}
                 viewport !== "desktop" ? "rounded-lg border border-zinc-800" : ""
               )}
               style={{
-                minHeight: isFullscreen ? "calc(100vh - 120px)" : "430px",
+                minHeight: isFullscreen ? "calc(100vh - 120px)" : "600px",
               }}
             >
               <iframe
                 key={`${key}-${JSON.stringify(controlValues)}`}
-                src={`/api/preview/${slug}${queryParams}`}
+                src={`/preview/${slug}${queryParams}`}
                 className="w-full h-full border-0"
-                style={{ minHeight: isFullscreen ? "calc(100vh - 120px)" : "430px" }}
+                style={{ minHeight: isFullscreen ? "calc(100vh - 120px)" : "600px" }}
                 title={`${name} preview`}
               />
             </div>

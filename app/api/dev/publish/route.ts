@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/kinde";
-import { ComponentType, ComponentTier, ComponentCategory, ComponentStatus } from "@prisma/client";
+import { ComponentType, ComponentTier, ComponentCategory, ComponentStatus, ComponentBadge } from "@prisma/client";
+import { detectComplexDependencies, generateComponentPath, regenerateRegistry } from "@/lib/registry-generator";
 
 // Only allow in development
 const isDev = process.env.NODE_ENV === "development";
@@ -19,7 +21,9 @@ const categoryMap: Record<string, ComponentCategory> = {
   forms: ComponentCategory.FORMS,
   cards: ComponentCategory.CARDS,
   buttons: ComponentCategory.BUTTONS,
+  cursor: ComponentCategory.CURSOR,
   animations: ComponentCategory.ANIMATIONS,
+  background: ComponentCategory.BACKGROUND,
   other: ComponentCategory.OTHER,
 };
 
@@ -37,6 +41,13 @@ const tierMap: Record<string, ComponentTier> = {
   pro: ComponentTier.PRO,
   community_free: ComponentTier.COMMUNITY_FREE,
   community_paid: ComponentTier.COMMUNITY_PAID,
+};
+
+// Map string badges to enum values
+const badgeMap: Record<string, ComponentBadge> = {
+  default: ComponentBadge.DEFAULT,
+  new: ComponentBadge.NEW,
+  updated: ComponentBadge.UPDATED,
 };
 
 export async function POST(request: NextRequest) {
@@ -59,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { folder, meta, code } = body;
+    const { folder, meta, code, previewConfig } = body;
 
     // Validate required fields
     if (!meta || !code) {
@@ -69,7 +80,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, slug, description, type, tier, category, tags, dependencies, registryDependencies, cssSetup } = meta;
+    const { name, slug, description, type, tier, category, tags, dependencies, registryDependencies, cssSetup, controls, badge } = meta;
+
+    // Detect complex dependencies and generate component path
+    const depsArray = Array.isArray(dependencies) ? dependencies : [];
+    const hasComplexDeps = detectComplexDependencies(depsArray);
+    const componentPath = generateComponentPath(slug);
 
     if (!name || !slug || !description) {
       return NextResponse.json(
@@ -82,6 +98,11 @@ export async function POST(request: NextRequest) {
     const categoryEnum = categoryMap[category?.toLowerCase()] || ComponentCategory.OTHER;
     const typeEnum = typeMap[type?.toLowerCase()] || ComponentType.BLOCK;
     const tierEnum = tierMap[tier?.toLowerCase()] || ComponentTier.FREE;
+    const badgeEnum = badgeMap[badge?.toLowerCase()] || ComponentBadge.DEFAULT;
+
+    // Prepare metadata object with controls
+    // Use Prisma.DbNull to explicitly set to database NULL, or undefined to skip the field
+    const metadata = controls && controls.length > 0 ? { controls } : Prisma.DbNull;
 
     // Check if component already exists
     const existingComponent = await prisma.component.findUnique({
@@ -89,6 +110,8 @@ export async function POST(request: NextRequest) {
     });
 
     let component;
+
+    let action: "created" | "updated";
 
     if (existingComponent) {
       // Update existing component
@@ -101,20 +124,22 @@ export async function POST(request: NextRequest) {
           type: typeEnum,
           tier: tierEnum,
           category: categoryEnum,
+          badge: badgeEnum,
           tags: tags || [],
           dependencies: dependencies ? JSON.stringify(dependencies) : undefined,
           registryDeps: registryDependencies || [],
           cssSetup: cssSetup || null,
+          metadata,
+          // New preview system fields
+          previewConfig: previewConfig || Prisma.DbNull,
+          hasComplexDeps,
+          componentPath,
+          status: ComponentStatus.PUBLISHED,
+          publishedAt: new Date(),
           updatedAt: new Date(),
         },
       });
-
-      return NextResponse.json({
-        success: true,
-        message: `Component "${name}" updated successfully`,
-        data: component,
-        action: "updated",
-      });
+      action = "updated";
     } else {
       // Create new component
       component = await prisma.component.create({
@@ -126,23 +151,41 @@ export async function POST(request: NextRequest) {
           type: typeEnum,
           tier: tierEnum,
           category: categoryEnum,
+          badge: badgeEnum,
           tags: tags || [],
           dependencies: dependencies ? JSON.stringify(dependencies) : undefined,
           registryDeps: registryDependencies || [],
           cssSetup: cssSetup || null,
+          metadata,
+          // New preview system fields
+          previewConfig: previewConfig || Prisma.DbNull,
+          hasComplexDeps,
+          componentPath,
           status: ComponentStatus.PUBLISHED,
           authorId: user.id,
           publishedAt: new Date(),
         },
       });
-
-      return NextResponse.json({
-        success: true,
-        message: `Component "${name}" published successfully`,
-        data: component,
-        action: "created",
-      });
+      action = "created";
     }
+
+    // Auto-regenerate component registry (dev only)
+    try {
+      const registryCount = await regenerateRegistry();
+      console.log(`[Publish] Registry regenerated with ${registryCount} components`);
+    } catch (registryError) {
+      console.error("[Publish] Failed to regenerate registry:", registryError);
+      // Don't fail the publish if registry regeneration fails
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Component "${name}" ${action} successfully`,
+      data: component,
+      action,
+      hasComplexDeps,
+      componentPath,
+    });
   } catch (error) {
     console.error("Error publishing component:", error);
 

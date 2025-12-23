@@ -10,8 +10,8 @@ import { cn } from "@/lib/utils";
  */
 interface PulseButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  pulseColor?: string; // The color of the pulse effect
-  duration?: string; // Animation duration
+  pulseColor?: string;
+  duration?: string;
 }
 
 export const PulseButton = React.forwardRef<
@@ -51,17 +51,3 @@ export const PulseButton = React.forwardRef<
 );
 
 PulseButton.displayName = "PulseButton";
-
-export default function Preview() {
-  return (
-    <div className="flex flex-col md:flex-row min-h-[400px] w-full items-center justify-center gap-6 p-8">
-      <PulseButton className="bg-zinc-600 text-white">Default Pulse</PulseButton>
-      <PulseButton pulseColor="#4AFE80" duration="2s">
-        Blue Pulse
-      </PulseButton>
-      <PulseButton pulseColor="#8b5cf6" duration="1s" className="bg-purple-600">
-        Purple Fast
-      </PulseButton>
-    </div>
-  );
-}

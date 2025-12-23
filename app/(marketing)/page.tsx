@@ -1,13 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Blocks, Code2, Sparkles, Zap, Terminal, Rocket } from "lucide-react";
+import { ArrowRight, Code2, Sparkles, Terminal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CliCommand } from "@/components/cli-command";
 import LiquidEther from "@/components/ui/LiquidEther";
 import FlowingMenu from "@/components/ui/FlowingMenu";
-import { BorderBeam } from "@/components/ui/BorderBeam";
+import { BorderBeam } from "@/components/ui/border-beam";
 
 export default function HomePage() {
   return (

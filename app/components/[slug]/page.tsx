@@ -33,6 +33,10 @@ const tierLabels: Record<string, string> = {
   community_paid: "Paid",
 };
 
+// Force dynamic rendering - no caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function generateMetadata({ params }: ComponentPageProps) {
   const { slug } = await params;
   const component = await RegistryService.getComponent(slug);

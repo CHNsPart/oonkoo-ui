@@ -55,7 +55,9 @@ enum ComponentCategory {
   FORMS
   CARDS
   BUTTONS
+  CURSOR
   ANIMATIONS
+  BACKGROUND
   OTHER
 }
 
@@ -172,6 +174,11 @@ model Component {
 
   // Component metadata (controls, etc.)
   metadata        Json?                             // Stores controls and other component configuration
+
+  // Preview system fields
+  previewConfig   Json?                             // { containerClass, exampleProps, wrapperStyle, layout }
+  hasComplexDeps  Boolean           @default(false) // true for Three.js, GSAP, WebGL components
+  componentPath   String?                           // e.g., "@/components/ui/LiquidEther" for registry
 
   // For paid community components
   price           Decimal?          @db.Decimal(10, 2)

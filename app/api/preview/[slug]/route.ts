@@ -59,9 +59,24 @@ function generatePreviewHTML(name: string, code: string, isPro: boolean, control
   if (previewMatch) {
     componentName = "Preview";
   } else {
-    // Otherwise, use the first exported function
-    const exportMatch = code.match(/export\s+(?:default\s+)?function\s+(\w+)/);
-    componentName = exportMatch ? exportMatch[1] : "Component";
+    // Try different export patterns
+    // Pattern 1: export function ComponentName
+    let exportMatch = code.match(/export\s+(?:default\s+)?function\s+(\w+)/);
+    if (exportMatch) {
+      componentName = exportMatch[1];
+    } else {
+      // Pattern 2: export const ComponentName = ...
+      exportMatch = code.match(/export\s+const\s+(\w+)\s*=/);
+      if (exportMatch) {
+        componentName = exportMatch[1];
+      } else {
+        // Pattern 3: const ComponentName = ...; export default ComponentName
+        exportMatch = code.match(/const\s+(\w+)\s*=.*[\s\S]*?export\s+default\s+\1/);
+        if (exportMatch) {
+          componentName = exportMatch[1];
+        }
+      }
+    }
   }
 
   // For pro components, show a locked preview

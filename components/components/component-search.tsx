@@ -16,6 +16,7 @@ import {
   Lock,
   ArrowRight,
   Command,
+  type LucideIcon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -37,7 +38,7 @@ interface ComponentSearchProps {
 }
 
 // Category icons mapping
-const categoryIcons: Record<string, React.ElementType> = {
+const categoryIcons: Record<string, LucideIcon> = {
   hero: Sparkles,
   features: LayoutGrid,
   pricing: Package,
@@ -49,6 +50,7 @@ const categoryIcons: Record<string, React.ElementType> = {
   forms: FileCode,
   cards: LayoutGrid,
   buttons: Package,
+  cursor: Wand2,
   cta: Rocket,
   animations: Wand2,
   other: FileCode,
@@ -67,6 +69,7 @@ const categoryLabels: Record<string, string> = {
   forms: "Forms",
   cards: "Cards",
   buttons: "Buttons",
+  cursor: "Cursor",
   cta: "CTA",
   animations: "Animations",
   other: "Other",
@@ -183,7 +186,7 @@ export function ComponentSearch({ components }: ComponentSearchProps) {
 
           {/* Components by Category */}
           {sortedCategories.map((category) => {
-            const Icon = categoryIcons[category] || FileCode;
+            const Icon: LucideIcon = categoryIcons[category] || FileCode;
             const label = categoryLabels[category] || category;
             const categoryComponents = groupedComponents[category];
 
