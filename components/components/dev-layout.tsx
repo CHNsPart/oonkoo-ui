@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ReactNode } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,8 +24,10 @@ import {
   Palette,
   RectangleHorizontal,
   Component,
-  Crown,
-  Gift,
+  BadgeCheck,
+  FileDown,
+  Users,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -41,35 +43,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { isOfficialComponent } from "@/lib/component-config";
 
 // Category icons
-const categoryIcons = {
+const categoryIcons: Record<string, typeof Palette> = {
   background: Palette,
   cards: Layers,
   cursor: MousePointer2,
   buttons: RectangleHorizontal,
+  animations: Tag,
+  other: Component,
 };
 
-// Dev components list for navigation - grouped by tier and category
-const devComponents = [
-  // Pro Component
-  { slug: "liquid-ether", name: "Liquid Ether", tier: "pro", category: "background" },
-  // Free Components
-  { slug: "flow-threads", name: "Flow Threads", tier: "free", category: "background" },
-  { slug: "magnet-card", name: "Magnet Card", tier: "free", category: "cards" },
-  { slug: "border-beam", name: "Border Beam", tier: "free", category: "cards" },
-  { slug: "spark-cursor", name: "Spark Cursor", tier: "free", category: "cursor" },
-  { slug: "pulse-button", name: "Pulse Button", tier: "free", category: "buttons" },
-  { slug: "shimmer-button", name: "Shimmer Button", tier: "free", category: "buttons" },
-  { slug: "ripple-button", name: "Ripple Button", tier: "free", category: "buttons" },
-  { slug: "noise-trail", name: "Noise Trail", tier: "free", category: "buttons" },
-  { slug: "hover-border-trail", name: "Hover Border Trail", tier: "free", category: "buttons" },
-  { slug: "stateful-button", name: "Stateful Button", tier: "free", category: "buttons" },
-];
-
-// Group components by tier
-const proComponents = devComponents.filter(c => c.tier === "pro");
-const freeComponents = devComponents.filter(c => c.tier === "free");
+// Component entry type
+interface DevComponent {
+  slug: string;
+  name: string;
+  tier: string;
+  category: string;
+  isOfficial?: boolean;
+}
 
 type ViewportSize = "desktop" | "tablet" | "mobile";
 
@@ -84,12 +77,38 @@ export interface ComponentMetadata {
   slug: string;
   description: string;
   type: "block" | "element" | "template" | "animation";
-  tier: "free" | "pro";
+  tier: "free" | "pro" | "community_free" | "community_paid";
   category: string;
   tags: string[];
   dependencies: string[];
   registryDependencies: string[];
   badge?: "default" | "new" | "updated";
+  authorId?: string;
+  authorName?: string;
+}
+
+interface Author {
+  id: string;
+  name: string | null;
+  image: string | null;
+}
+
+interface ApprovedRequest {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  type: string;
+  tier: string;
+  category: string;
+  tags: string[];
+  dependencies: string[];
+  author: {
+    id: string;
+    name: string | null;
+    email: string;
+    avatar: string | null;
+  };
 }
 
 interface DevLayoutProps {
@@ -116,6 +135,102 @@ export function DevLayout({
     message: string;
   } | null>(null);
 
+  // Dynamic component list from API
+  const [devComponents, setDevComponents] = useState<DevComponent[]>([]);
+  const [loadingComponents, setLoadingComponents] = useState(true);
+
+  // Authors for community components
+  const [authors, setAuthors] = useState<Author[]>([]);
+  const [loadingAuthors, setLoadingAuthors] = useState(false);
+
+  // Approved requests for "Load from Request" feature
+  const [approvedRequests, setApprovedRequests] = useState<ApprovedRequest[]>([]);
+  const [loadingRequests, setLoadingRequests] = useState(false);
+  const [loadedFromRequest, setLoadedFromRequest] = useState(false);
+
+  // Fetch components from API on mount
+  useEffect(() => {
+    async function fetchComponents() {
+      try {
+        const res = await fetch('/api/dev/components');
+        const data = await res.json();
+        if (data.components) {
+          setDevComponents(data.components);
+        }
+      } catch (error) {
+        console.error('Failed to fetch dev components:', error);
+      } finally {
+        setLoadingComponents(false);
+      }
+    }
+    fetchComponents();
+  }, []);
+
+  // Fetch authors when tier is community
+  useEffect(() => {
+    const isCommunityTier = metadata.tier === 'community_free' || metadata.tier === 'community_paid';
+    if (isCommunityTier && authors.length === 0) {
+      setLoadingAuthors(true);
+      fetch('/api/admin/users')
+        .then(res => res.json())
+        .then(data => {
+          if (data.users) {
+            setAuthors(data.users);
+          }
+        })
+        .catch(error => {
+          console.error('Failed to fetch authors:', error);
+        })
+        .finally(() => {
+          setLoadingAuthors(false);
+        });
+    }
+  }, [metadata.tier, authors.length]);
+
+  // Fetch approved requests on mount
+  useEffect(() => {
+    setLoadingRequests(true);
+    fetch('/api/dev/requests')
+      .then(res => res.json())
+      .then(data => {
+        if (data.requests) {
+          setApprovedRequests(data.requests);
+        }
+      })
+      .catch(error => {
+        console.error('Failed to fetch approved requests:', error);
+      })
+      .finally(() => {
+        setLoadingRequests(false);
+      });
+  }, []);
+
+  // Handle loading metadata from an approved request
+  const handleLoadFromRequest = (request: ApprovedRequest) => {
+    onMetadataChange({
+      ...metadata,
+      name: request.name,
+      slug: request.slug,
+      description: request.description,
+      type: request.type as any,
+      tier: request.tier as any,
+      category: request.category,
+      tags: request.tags,
+      dependencies: request.dependencies as string[],
+      authorId: request.author.id,
+      authorName: request.author.name || request.author.email,
+    });
+    setLoadedFromRequest(true);
+  };
+
+  // Group components by tier
+  const proComponents = devComponents.filter(c => c.tier === "pro" || c.tier === "PRO");
+  const freeComponents = devComponents.filter(c => c.tier === "free" || c.tier === "FREE");
+  const communityComponents = devComponents.filter(c =>
+    c.tier === "community_free" || c.tier === "COMMUNITY_FREE" ||
+    c.tier === "community_paid" || c.tier === "COMMUNITY_PAID"
+  );
+
   // Get current component from pathname
   const currentSlug = pathname?.split('/').pop() || '';
   const currentComponent = devComponents.find(c => c.slug === currentSlug);
@@ -125,6 +240,16 @@ export function DevLayout({
   };
 
   const handlePublish = async () => {
+    // Validate: Community tier requires an author
+    const isCommunityTier = metadata.tier === 'community_free' || metadata.tier === 'community_paid';
+    if (isCommunityTier && !metadata.authorId) {
+      setPublishResult({
+        success: false,
+        message: "Community components require an author. Use 'Load from Request' or select an author below.",
+      });
+      return;
+    }
+
     setPublishing(true);
     setPublishResult(null);
 
@@ -201,12 +326,13 @@ export function DevLayout({
             <DropdownMenuContent align="start" className="w-64">
               {/* Pro Components */}
               <DropdownMenuLabel className="flex items-center gap-2 text-xs text-purple-600 dark:text-purple-400">
-                <Crown className="h-3.5 w-3.5" />
+                <Image src="/pro-plan-badge.svg" alt="Pro" width={14} height={14} className="h-3.5 w-3.5" />
                 Pro Components
               </DropdownMenuLabel>
               {proComponents.map((component) => {
-                const CategoryIcon = categoryIcons[component.category as keyof typeof categoryIcons] || Component;
+                const CategoryIcon = categoryIcons[component.category?.toLowerCase()] || Component;
                 const isActive = component.slug === currentSlug;
+                const isOfficial = isOfficialComponent(component.slug);
                 return (
                   <DropdownMenuItem key={component.slug} asChild>
                     <Link
@@ -223,10 +349,15 @@ export function DevLayout({
                       <span className={cn("flex-1", isActive && "font-medium")}>
                         {component.name}
                       </span>
+                      {isOfficial && (
+                        <Badge variant="outline" className="text-[8px] px-1 py-0 h-4 bg-primary/10 text-primary border-primary/20">
+                          Official
+                        </Badge>
+                      )}
                       <div className="flex items-center gap-1.5">
                         <CategoryIcon className="h-3 w-3 text-muted-foreground/60" />
                         <span className="text-[10px] text-muted-foreground capitalize">
-                          {component.category}
+                          {component.category?.toLowerCase()}
                         </span>
                       </div>
                     </Link>
@@ -238,12 +369,13 @@ export function DevLayout({
 
               {/* Free Components */}
               <DropdownMenuLabel className="flex items-center gap-2 text-xs text-primary">
-                <Gift className="h-3.5 w-3.5" />
+                <Image src="/free-plan-badge.svg" alt="Free" width={14} height={14} className="h-3.5 w-3.5" />
                 Free Components
               </DropdownMenuLabel>
               {freeComponents.map((component) => {
-                const CategoryIcon = categoryIcons[component.category as keyof typeof categoryIcons] || Component;
+                const CategoryIcon = categoryIcons[component.category?.toLowerCase()] || Component;
                 const isActive = component.slug === currentSlug;
+                const isOfficial = isOfficialComponent(component.slug);
                 return (
                   <DropdownMenuItem key={component.slug} asChild>
                     <Link
@@ -260,21 +392,125 @@ export function DevLayout({
                       <span className={cn("flex-1", isActive && "font-medium")}>
                         {component.name}
                       </span>
+                      {isOfficial && (
+                        <Badge variant="outline" className="text-[8px] px-1 py-0 h-4 bg-primary/10 text-primary border-primary/20">
+                          Official
+                        </Badge>
+                      )}
                       <div className="flex items-center gap-1.5">
                         <CategoryIcon className="h-3 w-3 text-muted-foreground/60" />
                         <span className="text-[10px] text-muted-foreground capitalize">
-                          {component.category}
+                          {component.category?.toLowerCase()}
                         </span>
                       </div>
                     </Link>
                   </DropdownMenuItem>
                 );
               })}
+
+              {/* Community Components (if any) */}
+              {communityComponents.length > 0 && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
+                    <Package className="h-3.5 w-3.5" />
+                    Community
+                  </DropdownMenuLabel>
+                  {communityComponents.map((component) => {
+                    const CategoryIcon = categoryIcons[component.category?.toLowerCase()] || Component;
+                    const isActive = component.slug === currentSlug;
+                    return (
+                      <DropdownMenuItem key={component.slug} asChild>
+                        <Link
+                          href={`/dev/${component.slug}`}
+                          className={cn(
+                            "flex items-center gap-2 cursor-pointer",
+                            isActive && "bg-accent"
+                          )}
+                        >
+                          <Component className={cn(
+                            "h-3.5 w-3.5",
+                            isActive ? "text-blue-500" : "text-muted-foreground"
+                          )} />
+                          <span className={cn("flex-1", isActive && "font-medium")}>
+                            {component.name}
+                          </span>
+                          <Badge variant="outline" className="text-[8px] px-1 py-0 h-4 bg-blue-500/10 text-blue-500 border-blue-500/20">
+                            Community
+                          </Badge>
+                        </Link>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </>
+              )}
+
+              {/* Loading state */}
+              {loadingComponents && (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                </div>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Load from Request - for community components */}
+          {approvedRequests.length > 0 && (
+            <>
+              <div className="h-6 w-px bg-border" />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 gap-2">
+                    <FileDown className="h-4 w-4 text-blue-500" />
+                    <span className="text-xs">Load from Request</span>
+                    <Badge variant="secondary" className="text-[10px] px-1.5 h-4 bg-blue-500/10 text-blue-500">
+                      {approvedRequests.length}
+                    </Badge>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-72">
+                  <DropdownMenuLabel className="flex items-center gap-2 text-xs">
+                    <Users className="h-3.5 w-3.5 text-blue-500" />
+                    Approved Requests (Ready to Publish)
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {approvedRequests.map((request) => (
+                    <DropdownMenuItem
+                      key={request.id}
+                      onClick={() => handleLoadFromRequest(request)}
+                      className="flex flex-col items-start gap-1 cursor-pointer py-2"
+                    >
+                      <div className="flex items-center gap-2 w-full">
+                        <span className="font-medium text-sm">{request.name}</span>
+                        <Badge variant="outline" className="text-[8px] px-1 py-0 h-4 capitalize">
+                          {request.category}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>by {request.author.name || request.author.email}</span>
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
+                  {loadingRequests && (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    </div>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Loaded from Request indicator */}
+          {loadedFromRequest && (
+            <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-500 border-blue-500/20 gap-1">
+              <Users className="h-3 w-3" />
+              Loaded from Request
+            </Badge>
+          )}
+
           {/* Viewport Switcher */}
           <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
             <Button
@@ -337,10 +573,10 @@ export function DevLayout({
       <main className="flex-1 overflow-hidden flex">
         {/* Preview Area */}
         <div className="flex-1 overflow-auto bg-zinc-950 p-4">
-          <div className="h-full flex justify-center">
+          <div className="min-h-full flex justify-center items-start">
             <div
               key={refreshKey}
-              className="h-full w-full transition-all duration-300 bg-background rounded-lg border overflow-hidden"
+              className="w-full transition-all duration-300 bg-background rounded-lg border overflow-hidden"
               style={{ maxWidth: viewportSizes[viewport].width }}
             >
               {children}
@@ -458,8 +694,52 @@ export function DevLayout({
                 >
                   <option value="free">Free</option>
                   <option value="pro">Pro</option>
+                  <option value="community_free">Community (Free)</option>
+                  <option value="community_paid">Community (Paid)</option>
                 </select>
               </div>
+
+              {/* Author - Only for community tiers */}
+              {(metadata.tier === 'community_free' || metadata.tier === 'community_paid') && (
+                <div className="space-y-2">
+                  <Label htmlFor="authorId" className="text-xs flex items-center gap-2">
+                    <BadgeCheck className="h-3.5 w-3.5 text-blue-500" />
+                    Component Author
+                  </Label>
+                  {loadingAuthors ? (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      Loading users...
+                    </div>
+                  ) : (
+                    <select
+                      id="authorId"
+                      value={metadata.authorId || ''}
+                      onChange={(e) => {
+                        const selectedAuthor = authors.find(a => a.id === e.target.value);
+                        onMetadataChange({
+                          ...metadata,
+                          authorId: e.target.value || undefined,
+                          authorName: selectedAuthor?.name || undefined
+                        });
+                      }}
+                      className="w-full h-8 px-3 rounded-md border border-input bg-background text-xs"
+                    >
+                      <option value="">Select author...</option>
+                      {authors.map((author) => (
+                        <option key={author.id} value={author.id}>
+                          {author.name || 'Unknown User'}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                  {metadata.authorId && metadata.authorName && (
+                    <p className="text-xs text-muted-foreground">
+                      Selected: {metadata.authorName}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Category */}
               <div className="space-y-2">

@@ -151,8 +151,8 @@
   --chart-4: #4ADE80;
   --chart-5: #86EFAC;
 
-  /* Sidebar */
-  --sidebar: oklch(0.98 0 0);
+  /* Sidebar - Match main background */
+  --sidebar: oklch(0.99 0 0);
   --sidebar-foreground: #1F1C1C;
   --sidebar-primary: #3CB371;
   --sidebar-primary-foreground: oklch(0.99 0 0);
@@ -198,8 +198,8 @@
   --chart-4: #86EFAC;
   --chart-5: #BBF7D0;
 
-  /* Sidebar - Deep dark like inspiration */
-  --sidebar: #0a0a0b;
+  /* Sidebar - Match main background */
+  --sidebar: #1F1C1C;
   --sidebar-foreground: oklch(0.95 0 0);
   --sidebar-primary: #4ADE80;
   --sidebar-primary-foreground: #1F1C1C;

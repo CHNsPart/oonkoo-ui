@@ -17,8 +17,8 @@ export async function getCurrentUser(): Promise<UserWithSubscription | null> {
     const kindeUser = await getUser();
     if (!kindeUser?.id) return null;
 
-    // Check if user should be admin based on email
-    const isAdminEmail = kindeUser.email === "imchn24@gmail.com";
+    // Check if user should be super admin (OonkooUI Team owner)
+    const isSuperAdminEmail = kindeUser.email === "imchn24@gmail.com";
 
     // Sync with database (upsert)
     const user = await prisma.user.upsert({
@@ -29,8 +29,8 @@ export async function getCurrentUser(): Promise<UserWithSubscription | null> {
           ? `${kindeUser.given_name} ${kindeUser.family_name ?? ""}`.trim()
           : undefined,
         avatar: kindeUser.picture ?? undefined,
-        // Ensure admin email always has ADMIN role
-        ...(isAdminEmail && { role: "ADMIN" }),
+        // Ensure super admin email always has SUPER_ADMIN role
+        ...(isSuperAdminEmail && { role: "SUPER_ADMIN" }),
       },
       create: {
         kindeId: kindeUser.id,
@@ -39,8 +39,8 @@ export async function getCurrentUser(): Promise<UserWithSubscription | null> {
           ? `${kindeUser.given_name} ${kindeUser.family_name ?? ""}`.trim()
           : null,
         avatar: kindeUser.picture ?? null,
-        // Set ADMIN role for admin email on creation
-        role: isAdminEmail ? "ADMIN" : "USER",
+        // Set SUPER_ADMIN role for owner email on creation
+        role: isSuperAdminEmail ? "SUPER_ADMIN" : "USER",
       },
       include: {
         subscription: true,
@@ -88,24 +88,51 @@ export async function requireSeller(): Promise<UserWithSubscription> {
 }
 
 /**
- * Require admin role - throws if not admin
+ * Require admin role - throws if not admin or super admin
  */
 export async function requireAdmin(): Promise<UserWithSubscription> {
   const user = await requireAuth();
-  if (user.role !== "ADMIN") {
+  if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") {
     throw new Error("Admin access required");
   }
   return user;
 }
 
 /**
- * Check if user has Pro access (either active subscription or admin)
+ * Require super admin role - throws if not super admin
+ */
+export async function requireSuperAdmin(): Promise<UserWithSubscription> {
+  const user = await requireAuth();
+  if (user.role !== "SUPER_ADMIN") {
+    throw new Error("Super Admin access required");
+  }
+  return user;
+}
+
+/**
+ * Check if user has Pro access (either active subscription or admin/super admin)
  */
 export function hasProAccess(user: UserWithSubscription | null): boolean {
   if (!user) return false;
-  // Admin always has Pro access
-  if (user.role === "ADMIN") return true;
+  // Admin and Super Admin always have Pro access
+  if (user.role === "ADMIN" || user.role === "SUPER_ADMIN") return true;
   return user.subscription?.status === "ACTIVE";
+}
+
+/**
+ * Check if user is an admin (ADMIN or SUPER_ADMIN)
+ */
+export function isAdmin(user: UserWithSubscription | null): boolean {
+  if (!user) return false;
+  return user.role === "ADMIN" || user.role === "SUPER_ADMIN";
+}
+
+/**
+ * Check if user is super admin
+ */
+export function isSuperAdmin(user: UserWithSubscription | null): boolean {
+  if (!user) return false;
+  return user.role === "SUPER_ADMIN";
 }
 
 /**

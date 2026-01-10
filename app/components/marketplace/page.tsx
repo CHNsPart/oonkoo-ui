@@ -1,4 +1,5 @@
-import { Store, Crown, Sparkles, ArrowRight, Users, DollarSign } from "lucide-react";
+import Image from "next/image";
+import { Store, Sparkles, ArrowRight, Users, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -31,7 +32,7 @@ export default function MarketplacePage() {
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Button size="lg" disabled className="gap-2">
-                <Crown className="h-4 w-4" />
+                <Image src="/pro-plan-badge.svg" alt="Seller" width={16} height={16} className="h-4 w-4" />
                 Become a Seller
               </Button>
               <Button size="lg" variant="outline" asChild>
@@ -82,7 +83,7 @@ export default function MarketplacePage() {
               </p>
             </div>
             <div className="rounded-lg border bg-card p-4 text-left">
-              <Crown className="h-8 w-8 text-purple-500 mb-2" />
+              <Image src="/pro-plan-badge.svg" alt="Pro" width={32} height={32} className="h-8 w-8 mb-2" />
               <h3 className="font-semibold mb-1">Verified Badge</h3>
               <p className="text-sm text-muted-foreground">
                 Get verified status and build trust with buyers.

@@ -36,6 +36,7 @@ export interface RegistryComponent {
   author: {
     id: string;
     name: string;
+    avatar?: string;
   };
   // Files to install
   files: RegistryFile[];

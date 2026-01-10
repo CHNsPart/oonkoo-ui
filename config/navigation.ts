@@ -1,4 +1,4 @@
-import { LucideIcon, Home, Blocks, Store, User, Settings, LayoutDashboard, Shield } from "lucide-react";
+import { LucideIcon, Blocks, Store, Settings, LayoutDashboard, Shield, User } from "lucide-react";
 
 export interface NavItem {
   title: string;
@@ -60,11 +60,7 @@ export const dashboardNav: NavSection[] = [
   {
     title: "Account",
     items: [
-      {
-        title: "Profile",
-        href: "/profile",
-        icon: User,
-      },
+      // Note: Profile link is dynamic (/profile/[userId]) - rendered in sidebar components
       {
         title: "Settings",
         href: "/settings",

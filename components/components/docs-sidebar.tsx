@@ -11,10 +11,10 @@ import {
   ChevronDown,
   Rocket,
   BookOpen,
-  Crown,
-  Users,
+  HandFist,
   type LucideIcon,
 } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -187,15 +187,19 @@ function SectionHeader({
   icon: Icon,
   count,
   isPro,
+  badgeImage,
 }: {
   title: string;
   icon?: LucideIcon;
   count?: number;
   isPro?: boolean;
+  badgeImage?: string;
 }) {
   return (
     <div className="flex items-center gap-2 py-2">
-      {Icon && (
+      {badgeImage ? (
+        <Image src={badgeImage} alt={title} width={14} height={14} className="h-3.5 w-3.5" />
+      ) : Icon && (
         <Icon
           className={cn(
             "h-3.5 w-3.5",
@@ -284,7 +288,7 @@ export function DocsSidebar({ components }: DocsSidebarProps) {
           <div>
             <SectionHeader
               title="Pro Components"
-              icon={Crown}
+              badgeImage="/pro-plan-badge.svg"
               count={proCount}
               isPro
             />
@@ -305,7 +309,7 @@ export function DocsSidebar({ components }: DocsSidebarProps) {
         {/* Free Components Section */}
         {sortedFreeCategories.length > 0 && (
           <div>
-            <SectionHeader title="Free Components" count={freeCount} />
+            <SectionHeader title="Free Components" badgeImage="/free-plan-badge.svg" count={freeCount} />
             <div className="space-y-3">
               {sortedFreeCategories.map((category) => (
                 <CategorySection
@@ -322,7 +326,7 @@ export function DocsSidebar({ components }: DocsSidebarProps) {
 
         {/* Community Section */}
         <div>
-          <SectionHeader title="Community" icon={Users} />
+          <SectionHeader title="Community" icon={HandFist} />
           <div className="space-y-0.5">
             <Link
               href="/components/community"

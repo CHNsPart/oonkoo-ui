@@ -1,14 +1,11 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { Blocks, Download, Heart, TrendingUp } from "lucide-react";
+import { Blocks, Download, Heart, TrendingUp, Send, FileQuestion, Shield } from "lucide-react";
 
 import { getCurrentUser } from "@/lib/kinde";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-const ADMIN_EMAIL = "imchn24@gmail.com";
 
 export const metadata = {
   title: "Dashboard",
@@ -22,12 +19,8 @@ export default async function DashboardPage() {
     return null;
   }
 
-  // Redirect admin users to admin dashboard
-  if (user.email === ADMIN_EMAIL) {
-    redirect("/admin");
-  }
-
   const isPro = user.subscription?.status === "ACTIVE";
+  const isAdmin = user.role === "ADMIN" || user.role === "SUPER_ADMIN";
 
   return (
     <div className="space-y-8">
@@ -92,6 +85,40 @@ export default async function DashboardPage() {
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="border-primary/20 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Send className="h-5 w-5 text-primary" />
+              Submit a Component
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Share your components with the community and get featured.
+            </p>
+            <Button asChild className="w-full">
+              <Link href="/submit-component">Submit Component</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <FileQuestion className="h-5 w-5" />
+              My Requests
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Track the status of your component submissions.
+            </p>
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/my-requests">View Requests</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Browse Components</CardTitle>
@@ -133,6 +160,26 @@ export default async function DashboardPage() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Admin Panel Card - Only for admins */}
+        {isAdmin && (
+          <Card className="border-amber-500/20 bg-amber-500/5">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Shield className="h-5 w-5 text-amber-600" />
+                Admin Panel
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Manage components, review submissions, and configure the platform.
+              </p>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/admin">Go to Admin Panel</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* CLI Section */}

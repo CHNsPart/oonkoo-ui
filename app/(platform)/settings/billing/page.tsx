@@ -12,8 +12,6 @@ import {
   ExternalLink,
   ArrowLeft,
   Loader2,
-  Crown,
-  Zap,
   Check
 } from "lucide-react";
 
@@ -188,11 +186,11 @@ export default function BillingPage() {
             <div className="flex items-center gap-3">
               {isPro ? (
                 <div className="p-2 rounded-lg bg-primary/10">
-                  <Crown className="h-6 w-6 text-primary" />
+                  <Image src="/pro-plan-badge.svg" alt="Pro" width={24} height={24} className="h-6 w-6" />
                 </div>
               ) : (
                 <div className="p-2 rounded-lg bg-muted">
-                  <Zap className="h-6 w-6 text-muted-foreground" />
+                  <Image src="/free-plan-badge.svg" alt="Free" width={24} height={24} className="h-6 w-6" />
                 </div>
               )}
               <div>
@@ -366,7 +364,7 @@ export default function BillingPage() {
             </div>
 
             <CheckoutButton className="w-full">
-              <Crown className="mr-2 h-4 w-4" />
+              <Image src="/pro-plan-badge.svg" alt="Pro" width={16} height={16} className="mr-2 h-4 w-4" />
               Upgrade to Pro
             </CheckoutButton>
 

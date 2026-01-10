@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, slug, description, type, tier, category, tags, dependencies, registryDependencies, cssSetup, controls, badge } = meta;
+    const { name, slug, description, type, tier, category, tags, dependencies, registryDependencies, cssSetup, controls, badge, authorId: metaAuthorId } = meta;
 
     // Detect complex dependencies and generate component path
     const depsArray = Array.isArray(dependencies) ? dependencies : [];
@@ -107,11 +107,55 @@ export async function POST(request: NextRequest) {
     // Check if component already exists
     const existingComponent = await prisma.component.findUnique({
       where: { slug },
+      include: {
+        author: {
+          select: { id: true, name: true }
+        }
+      }
     });
 
     let component;
 
     let action: "created" | "updated";
+    let warning: string | null = null;
+
+    // Determine authorId - use metaAuthorId for community components, otherwise current user
+    const isCommunityTier = tierEnum === ComponentTier.COMMUNITY_FREE || tierEnum === ComponentTier.COMMUNITY_PAID;
+    const existingIsCommunity = existingComponent?.tier === ComponentTier.COMMUNITY_FREE || existingComponent?.tier === ComponentTier.COMMUNITY_PAID;
+    const authorIdToUse = isCommunityTier && metaAuthorId ? metaAuthorId : user.id;
+
+    // Overwrite protection checks
+    if (existingComponent) {
+      // Check 1: Trying to change from community to official (or vice versa)
+      if (existingIsCommunity && !isCommunityTier) {
+        return NextResponse.json(
+          {
+            error: "Cannot change a community component to official. This component was submitted by a community member.",
+            existingAuthor: existingComponent.author?.name || "Unknown",
+            suggestion: "If you need to create an official version, use a different slug."
+          },
+          { status: 400 }
+        );
+      }
+
+      // Check 2: Trying to overwrite community component without matching author
+      if (existingIsCommunity && isCommunityTier && existingComponent.authorId !== authorIdToUse) {
+        return NextResponse.json(
+          {
+            error: `This community component belongs to "${existingComponent.author?.name || 'another user'}". Select the correct author before publishing.`,
+            existingAuthorId: existingComponent.authorId,
+            existingAuthorName: existingComponent.author?.name,
+            suggestion: "Use 'Load from Request' to auto-fill the correct author."
+          },
+          { status: 400 }
+        );
+      }
+
+      // Check 3: Official component being updated - just add warning if author is different
+      if (!existingIsCommunity && existingComponent.authorId !== user.id) {
+        warning = `Note: You are updating a component originally created by another admin.`;
+      }
+    }
 
     if (existingComponent) {
       // Update existing component
@@ -135,6 +179,8 @@ export async function POST(request: NextRequest) {
           hasComplexDeps,
           componentPath,
           status: ComponentStatus.PUBLISHED,
+          // Update author for community components
+          ...(isCommunityTier && metaAuthorId ? { authorId: metaAuthorId } : {}),
           publishedAt: new Date(),
           updatedAt: new Date(),
         },
@@ -162,11 +208,30 @@ export async function POST(request: NextRequest) {
           hasComplexDeps,
           componentPath,
           status: ComponentStatus.PUBLISHED,
-          authorId: user.id,
+          authorId: authorIdToUse,
           publishedAt: new Date(),
         },
       });
       action = "created";
+    }
+
+    // If this is a community component, link it to the original request
+    if (isCommunityTier && action === "created") {
+      try {
+        await prisma.componentRequest.updateMany({
+          where: {
+            slug: slug,
+            status: "APPROVED",
+            publishedComponentId: null,
+          },
+          data: {
+            publishedComponentId: component.id,
+          },
+        });
+      } catch (linkError) {
+        console.error("[Publish] Failed to link request to component:", linkError);
+        // Don't fail the publish if linking fails
+      }
     }
 
     // Auto-regenerate component registry (dev only)
@@ -185,6 +250,7 @@ export async function POST(request: NextRequest) {
       action,
       hasComplexDeps,
       componentPath,
+      ...(warning ? { warning } : {}),
     });
   } catch (error) {
     console.error("Error publishing component:", error);

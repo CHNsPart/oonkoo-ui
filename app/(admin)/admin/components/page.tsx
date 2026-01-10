@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
@@ -48,19 +48,14 @@ export default async function AdminComponentsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Components</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage all components in the registry
-          </p>
-        </div>
-        <Button asChild>
-          <Link href="/admin/components/new">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Component
-          </Link>
-        </Button>
+      <div>
+        <h1 className="text-3xl font-bold">Components</h1>
+        <p className="text-muted-foreground mt-1">
+          All published components in the registry. Official components are added via{" "}
+          <Link href="/dev" className="text-primary hover:underline">/dev</Link>,
+          community components via{" "}
+          <Link href="/admin/requests" className="text-primary hover:underline">request review</Link>.
+        </p>
       </div>
 
       <div className="rounded-lg border">

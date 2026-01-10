@@ -11,11 +11,11 @@ import {
   Wand2,
   LayoutGrid,
   Rocket,
-  Crown,
-  Gift,
   Lock,
   ArrowRight,
   Command,
+  BadgeCheck,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -32,6 +32,11 @@ import {
 } from "@/components/ui/command";
 import { Badge } from "@/components/ui/badge";
 import type { RegistryIndexItem } from "@/types/registry";
+
+// Helper to check if component is official based on tier
+function isOfficialTier(tier: string): boolean {
+  return tier === "free" || tier === "pro";
+}
 
 interface ComponentSearchProps {
   components: RegistryIndexItem[];
@@ -195,6 +200,7 @@ export function ComponentSearch({ components }: ComponentSearchProps) {
                 {categoryComponents.map((component) => {
                   const isPro = component.tier === "pro";
                   const isFree = component.tier === "free";
+                  const isOfficial = isOfficialTier(component.tier);
 
                   return (
                     <CommandItem
@@ -205,7 +211,14 @@ export function ComponentSearch({ components }: ComponentSearchProps) {
                     >
                       <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
                       <div className="flex flex-col flex-1 min-w-0">
-                        <span className="truncate">{component.name}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="truncate">{component.name}</span>
+                          {isOfficial ? (
+                            <BadgeCheck className="h-3 w-3 text-primary shrink-0" />
+                          ) : (
+                            <Users className="h-3 w-3 text-blue-500 shrink-0" />
+                          )}
+                        </div>
                         <span className="text-xs text-muted-foreground truncate">
                           {component.description}
                         </span>
@@ -225,6 +238,17 @@ export function ComponentSearch({ components }: ComponentSearchProps) {
                           className="ml-auto h-5 px-1.5 text-[10px] bg-green-500/10 text-green-500 border-0 shrink-0"
                         >
                           Free
+                        </Badge>
+                      )}
+                      {!isOfficial && (
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            "h-5 px-1.5 text-[10px] bg-blue-500/10 text-blue-500 border-0 shrink-0",
+                            (isPro || isFree) ? "" : "ml-auto"
+                          )}
+                        >
+                          Community
                         </Badge>
                       )}
                     </CommandItem>

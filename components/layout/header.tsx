@@ -12,6 +12,7 @@ import {
 } from "@kinde-oss/kinde-auth-nextjs/components";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -36,6 +37,7 @@ export function Header({ fullWidth = false, children }: HeaderProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const { user, isAuthenticated, isLoading } = useKindeBrowserClient();
+  const { user: dbUser } = useCurrentUser();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md dark:bg-card dark:border-white/10">
@@ -131,7 +133,7 @@ export function Header({ fullWidth = false, children }: HeaderProps) {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/profile">
+                  <Link href={dbUser ? `/profile/${dbUser.id}` : "/settings"}>
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </Link>

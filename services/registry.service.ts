@@ -14,6 +14,19 @@ const tierMap: Record<ComponentTier, RegistryComponent["tier"]> = {
   COMMUNITY_PAID: "community_paid",
 };
 
+// Official team author for FREE/PRO components
+const OONKOO_TEAM_AUTHOR = {
+  id: "oonkoo-team",
+  name: "OonkooUI Team",
+};
+
+/**
+ * Check if a tier is considered "official" (managed by OonkooUI Team)
+ */
+function isOfficialTier(tier: ComponentTier): boolean {
+  return tier === ComponentTier.FREE || tier === ComponentTier.PRO;
+}
+
 export class RegistryService {
   /**
    * Get registry index with optional filtering
@@ -120,10 +133,13 @@ export class RegistryService {
       price: c.price ? Number(c.price) : undefined,
       badge: c.badge.toLowerCase() as RegistryIndexItem["badge"],
       previewImage: c.previewImage ?? undefined,
-      author: {
-        id: c.author.id,
-        name: c.author.name ?? "Anonymous",
-      },
+      // Show OonkooUI Team as author for official components (FREE/PRO)
+      author: isOfficialTier(c.tier)
+        ? OONKOO_TEAM_AUTHOR
+        : {
+            id: c.author.id,
+            name: c.author.name ?? "Anonymous",
+          },
     }));
 
     return {
@@ -151,6 +167,7 @@ export class RegistryService {
           select: {
             id: true,
             name: true,
+            avatar: true,
           },
         },
       },
@@ -221,10 +238,14 @@ export class RegistryService {
       tier: tierMap[component.tier],
       category: component.category.toLowerCase(),
       tags: component.tags,
-      author: {
-        id: component.author.id,
-        name: component.author.name ?? "Anonymous",
-      },
+      // Show OonkooUI Team as author for official components (FREE/PRO)
+      author: isOfficialTier(component.tier)
+        ? OONKOO_TEAM_AUTHOR
+        : {
+            id: component.author.id,
+            name: component.author.name ?? "Anonymous",
+            avatar: component.author.avatar ?? undefined,
+          },
       // Only include files if user has access
       files: accessGranted
         ? [

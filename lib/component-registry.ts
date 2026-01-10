@@ -14,11 +14,10 @@ export const COMPONENT_REGISTRY: Record<string, RegistryEntry> = {
   'hover-border-trail': { path: '@/components/ui/HoverBorderTrail', hasComplexDeps: false, displayName: 'HoverBorderTrail' },
   'liquid-ether': { path: '@/components/ui/LiquidEther', hasComplexDeps: true, displayName: 'LiquidEther' },
   'magnet-card': { path: '@/components/ui/MagnetCard', hasComplexDeps: false, displayName: 'MagnetCard' },
+  'minimal-card': { path: '@/components/ui/MinimalCard', hasComplexDeps: false, displayName: 'MinimalCard' },
   'noise-trail': { path: '@/components/ui/NoiseTrail', hasComplexDeps: false, displayName: 'NoiseTrail' },
   'pulse-button': { path: '@/components/ui/PulseButton', hasComplexDeps: false, displayName: 'PulseButton' },
   'ripple-button': { path: '@/components/ui/RippleButton', hasComplexDeps: false, displayName: 'RippleButton' },
-  'shimmer-button': { path: '@/components/ui/ShimmerButton', hasComplexDeps: false, displayName: 'ShimmerButton' },
-  'spark-cursor': { path: '@/components/ui/SparkCursor', hasComplexDeps: false, displayName: 'SparkCursor' },
   'stateful-button': { path: '@/components/ui/StatefulButton', hasComplexDeps: false, displayName: 'StatefulButton' }
 };
 

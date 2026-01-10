@@ -15,6 +15,14 @@ import {
   ChevronsUpDown,
   LogOut,
   CreditCard,
+  Send,
+  FileQuestion,
+  Shield,
+  Code2,
+  FileStack,
+  Users,
+  BarChart2,
+  Cog,
 } from "lucide-react";
 import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
 
@@ -71,6 +79,16 @@ const mainMenuItems = [
 
 const creatorMenuItems = [
   {
+    title: "Submit Component",
+    href: "/submit-component",
+    icon: Send,
+  },
+  {
+    title: "My Requests",
+    href: "/my-requests",
+    icon: FileQuestion,
+  },
+  {
     title: "My Components",
     href: "/my-components",
     icon: Upload,
@@ -87,6 +105,44 @@ const sellerMenuItems = [
     title: "Seller Dashboard",
     href: "/seller",
     icon: Store,
+  },
+];
+
+const adminMenuItems = [
+  {
+    title: "Admin Dashboard",
+    href: "/admin",
+    icon: Shield,
+  },
+  {
+    title: "Dev Platform",
+    href: "/dev",
+    icon: Code2,
+  },
+  {
+    title: "Component Requests",
+    href: "/admin/requests",
+    icon: FileStack,
+  },
+  {
+    title: "All Components",
+    href: "/admin/components",
+    icon: Blocks,
+  },
+  {
+    title: "Users",
+    href: "/admin/users",
+    icon: Users,
+  },
+  {
+    title: "Analytics",
+    href: "/admin/analytics",
+    icon: BarChart2,
+  },
+  {
+    title: "Settings",
+    href: "/admin/settings",
+    icon: Cog,
   },
 ];
 
@@ -111,8 +167,9 @@ const settingsMenuItems = [
 export function DashboardSidebar({ user, isPro }: DashboardSidebarProps) {
   const pathname = usePathname();
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
   const isSeller = user.sellerStatus === "VERIFIED";
+  const isAdmin = user.role === "ADMIN" || user.role === "SUPER_ADMIN";
 
   return (
     <Sidebar>
@@ -181,6 +238,29 @@ export function DashboardSidebar({ user, isPro }: DashboardSidebarProps) {
             <SidebarGroupContent>
               <SidebarMenu>
                 {sellerMenuItems.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton asChild isActive={isActive(item.href)}>
+                      <Link href={item.href}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* Admin Menu - Only for admins */}
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-amber-600 dark:text-amber-500">
+              Admin
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminMenuItems.map((item) => (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton asChild isActive={isActive(item.href)}>
                       <Link href={item.href}>

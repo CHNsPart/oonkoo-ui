@@ -8,6 +8,7 @@ import { LiveComponentPreview } from "./live-component-preview";
 import { CodeHighlighter } from "./code-highlighter";
 import { CodeVariantSelector } from "./code-variant-selector";
 import { ComponentControls, type ControlConfig } from "./component-controls";
+import Image from "next/image";
 
 interface ComponentPreviewProps {
   name: string;
@@ -118,10 +119,14 @@ export function ComponentPreview({
               />
             </div>
           ) : (
-            <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-12 text-center">
-              <div className="mx-auto w-16 h-16 rounded-full bg-purple-500/10 flex items-center justify-center mb-4">
-                <Code2 className="h-8 w-8 text-purple-500" />
-              </div>
+            <div className="relative rounded-xl border border-[#252525] bg-[#0D0A0A] p-12 text-center">
+              <Image
+                src="/pro-plan-badge.svg"
+                alt="Pro Badge"
+                width={24}
+                height={24}
+                className="mx-auto size-12 mb-4 z-50 shadow-2xl shadow-amber-200/40 rounded-lg border-2"
+              />
               <h3 className="text-xl font-semibold mb-2">Pro Component</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 This component requires an OonkooUI Pro subscription to view the source code.

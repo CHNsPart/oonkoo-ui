@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { unstable_noStore as noStore } from "next/cache";
 import {
   Sparkles,
@@ -6,10 +7,6 @@ import {
   Copy,
   Terminal,
   ArrowRight,
-  Download,
-  Star,
-  Crown,
-  Gift,
   MousePointer2,
   Palette,
   CreditCard,
@@ -30,8 +27,11 @@ import {
 } from "lucide-react";
 
 import { RegistryService } from "@/services/registry.service";
+import { getCurrentUser } from "@/lib/kinde";
+import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ComponentCard } from "@/components/components/component-card";
 import { cn } from "@/lib/utils";
 
 export const metadata = {
@@ -68,8 +68,19 @@ export default async function ComponentsPage() {
   // Disable all caching for this page
   noStore();
 
+  const user = await getCurrentUser();
   const { components, meta } = await RegistryService.getIndex({ limit: 500 });
   const categories = await RegistryService.getCategories();
+
+  // Get user's upvoted component slugs
+  let upvotedSlugs: string[] = [];
+  if (user) {
+    const upvotes = await prisma.upvote.findMany({
+      where: { userId: user.id },
+      include: { component: { select: { slug: true } } },
+    });
+    upvotedSlugs = upvotes.map((u) => u.component.slug);
+  }
 
   // Get featured/popular components
   const freeComponents = components.filter((c) => c.tier === "free");
@@ -153,114 +164,21 @@ export default async function ComponentsPage() {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {popularComponents.map((component, index) => {
-            const isPro = component.tier === "pro";
-            const CategoryIcon: LucideIcon =
-              categoryIcons[component.category.toLowerCase()] || LayoutGrid;
-
-            return (
-              <Link
-                key={component.slug}
-                href={`/components/${component.slug}`}
-                className="group relative"
-              >
-                <div
-                  className={cn(
-                    "relative rounded-xl border bg-card overflow-hidden transition-all duration-300",
-                    "hover:shadow-lg hover:border-primary/30",
-                    "hover:-translate-y-1"
-                  )}
-                >
-                  {/* Subtle gradient on hover */}
-                  <div
-                    className={cn(
-                      "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
-                      isPro
-                        ? "bg-gradient-to-br from-purple-500/5 to-transparent"
-                        : "bg-gradient-to-br from-primary/5 to-transparent"
-                    )}
-                  />
-
-                  <div className="relative p-5">
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={cn(
-                            "p-2 rounded-lg",
-                            isPro ? "bg-purple-500/10" : "bg-primary/10"
-                          )}
-                        >
-                          <CategoryIcon
-                            className={cn(
-                              "h-4 w-4",
-                              isPro ? "text-purple-500" : "text-primary"
-                            )}
-                          />
-                        </div>
-                        <Badge
-                          variant="secondary"
-                          className={cn(
-                            "text-[10px] font-medium",
-                            isPro
-                              ? "bg-purple-500/10 text-purple-600 dark:text-purple-400"
-                              : "bg-primary/10 text-primary"
-                          )}
-                        >
-                          {isPro ? (
-                            <Crown className="h-3 w-3 mr-1" />
-                          ) : (
-                            <Gift className="h-3 w-3 mr-1" />
-                          )}
-                          {isPro ? "Pro" : "Free"}
-                        </Badge>
-                      </div>
-                      {/* Rank badge for top 3 */}
-                      {index < 3 && (
-                        <div
-                          className={cn(
-                            "flex items-center justify-center h-6 w-6 rounded-full text-xs font-bold text-white",
-                            index === 0 && "bg-amber-500",
-                            index === 1 && "bg-slate-400",
-                            index === 2 && "bg-orange-400"
-                          )}
-                        >
-                          {index + 1}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors mb-2">
-                      {component.name}
-                    </h3>
-
-                    {/* Description */}
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                      {component.description}
-                    </p>
-
-                    {/* Stats */}
-                    <div className="flex items-center gap-4 pt-3 border-t border-border/50">
-                      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Download className="h-3.5 w-3.5" />
-                        <span className="font-medium text-foreground">
-                          {component.downloads.toLocaleString()}
-                        </span>
-                      </span>
-                      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Star className="h-3.5 w-3.5" />
-                        <span className="font-medium text-foreground">
-                          {component.upvotes.toLocaleString()}
-                        </span>
-                      </span>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground/50 ml-auto group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+          {popularComponents.map((component, index) => (
+            <ComponentCard
+              key={component.slug}
+              slug={component.slug}
+              name={component.name}
+              description={component.description}
+              tier={component.tier}
+              category={component.category}
+              downloads={component.downloads}
+              upvotes={component.upvotes}
+              isUpvoted={upvotedSlugs.includes(component.slug)}
+              isAuthenticated={!!user}
+              rank={index}
+            />
+          ))}
         </div>
       </section>
 
@@ -333,11 +251,11 @@ export default async function ComponentsPage() {
                       {proCount > 0 && freeCount > 0 && (
                         <div className="flex items-center gap-2">
                           <span className="flex items-center gap-1 text-purple-600 dark:text-purple-400">
-                            <Crown className="h-3 w-3" />
+                            <Image src="/pro-plan-badge.svg" alt="Pro" width={12} height={12} className="h-3 w-3" />
                             {proCount}
                           </span>
                           <span className="flex items-center gap-1 text-primary">
-                            <Gift className="h-3 w-3" />
+                            <Image src="/free-plan-badge.svg" alt="Free" width={12} height={12} className="h-3 w-3" />
                             {freeCount}
                           </span>
                         </div>
@@ -370,7 +288,7 @@ export default async function ComponentsPage() {
           <div className="relative rounded-xl border bg-card overflow-hidden group hover:border-primary/30 transition-colors">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
             <div className="relative text-center p-8">
-              <Gift className="h-8 w-8 text-primary mx-auto mb-3" />
+              <Image src="/free-plan-badge.svg" alt="Free" width={32} height={32} className="h-8 w-8 mx-auto mb-3" />
               <div className="text-4xl font-bold text-primary mb-1">
                 {freeComponents.length}
               </div>
@@ -383,7 +301,7 @@ export default async function ComponentsPage() {
           <div className="relative rounded-xl border bg-card overflow-hidden group hover:border-purple-500/30 transition-colors">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent" />
             <div className="relative text-center p-8">
-              <Crown className="h-8 w-8 text-purple-500 mx-auto mb-3" />
+              <Image src="/pro-plan-badge.svg" alt="Pro" width={32} height={32} className="h-8 w-8 mx-auto mb-3" />
               <div className="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-1">
                 {proComponents.length}
               </div>
@@ -409,31 +327,38 @@ export default async function ComponentsPage() {
       </section>
 
       {/* Pro CTA */}
-      <section className="relative rounded-2xl border overflow-hidden">
-        {/* Subtle gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent" />
-
-        <div className="relative p-10 text-center">
-          <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-purple-500/10 mb-6">
-            <Crown className="h-10 w-10 text-purple-500" />
+      <section className="rounded-xl border bg-gradient-to-r from-neutral-50 to-neutral-100/50 dark:from-neutral-900/50 dark:to-neutral-950/50 p-6">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="relative shrink-0">
+              <img
+                src="/pro-plan-badge.svg"
+                alt="OonkooUI Pro"
+                className="h-12 w-12"
+              />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-semibold text-foreground">OonkooUI Pro</h3>
+                <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary">
+                  {proComponents.length} components
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Unlock all premium components, templates, and priority support.
+              </p>
+            </div>
           </div>
-
-          <h2 className="text-3xl font-bold mb-3">Unlock All Components</h2>
-          <p className="text-muted-foreground mb-8 max-w-lg mx-auto text-lg">
-            Get access to all {proComponents.length} Pro components, templates,
-            and priority support with OonkooUI Pro.
-          </p>
-
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button asChild size="lg" className="gap-2">
-              <Link href="/pricing">
-                Get Pro Access
-                <ArrowRight className="h-4 w-4" />
+          <div className="flex items-center gap-3 shrink-0">
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/components/${proComponents[0]?.slug || ""}`}>
+                Preview
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href={`/components/${proComponents[0]?.slug || ""}`}>
-                Preview Pro Components
+            <Button asChild size="sm">
+              <Link href="/pricing">
+                Get Pro
+                <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
               </Link>
             </Button>
           </div>

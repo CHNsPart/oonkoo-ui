@@ -87,9 +87,9 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match all API routes
-    "/api/:path*",
-    // Match all pages except static files
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Match all API routes EXCEPT auth routes (Kinde needs these unmodified)
+    "/api/((?!auth).*)",
+    // Match all pages except static files and auth
+    "/((?!_next/static|_next/image|favicon.ico|api/auth|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

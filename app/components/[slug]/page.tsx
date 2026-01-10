@@ -1,17 +1,25 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Download, Heart, User, Lock, Sparkles } from "lucide-react";
+import { Download, User, Lock, Sparkles, BadgeCheck, Users, ExternalLink } from "lucide-react";
 
 import { RegistryService } from "@/services/registry.service";
 import { getCurrentUser } from "@/lib/kinde";
+import { prisma } from "@/lib/prisma";
 import { highlightCode } from "@/lib/highlight";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ComponentPreview } from "@/components/components/component-preview";
 import { ComponentInstallation } from "@/components/components/component-installation";
 import { PropsTable } from "@/components/components/props-table";
+import { UpvoteButton } from "@/components/components/upvote-button";
 import { extractPropsFromCode } from "@/lib/extract-props";
 import { extractPreviewCode } from "@/lib/extract-preview";
+
+// Helper to check if component is official based on tier
+function isOfficialTier(tier: string): boolean {
+  return tier === "free" || tier === "pro";
+}
 
 interface ComponentPageProps {
   params: Promise<{
@@ -23,7 +31,7 @@ const tierColors: Record<string, string> = {
   free: "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20",
   pro: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
   community_free: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
-  community_paid: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+  community_paid: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
 };
 
 const tierLabels: Record<string, string> = {
@@ -62,6 +70,26 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     notFound();
   }
 
+  // Check if user has upvoted this component
+  let hasUpvoted = false;
+  if (user) {
+    const dbComponent = await prisma.component.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+    if (dbComponent) {
+      const upvote = await prisma.upvote.findUnique({
+        where: {
+          userId_componentId: {
+            userId: user.id,
+            componentId: dbComponent.id,
+          },
+        },
+      });
+      hasUpvoted = !!upvote;
+    }
+  }
+
   const isPro = component.tier === "pro" || component.tier === "community_paid";
   const mainFile = component.files[0];
   const code = mainFile?.content || "";
@@ -88,7 +116,20 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       <div className="space-y-4 mb-8">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight">{component.name}</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold tracking-tight">{component.name}</h1>
+              {isOfficialTier(component.tier) ? (
+                <Badge className="bg-gradient-to-r from-primary/20 to-primary/10 text-primary border-primary/30">
+                  <BadgeCheck className="h-3 w-3 mr-1" />
+                  Official
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 border-blue-500/20">
+                  <Users className="h-3 w-3 mr-1" />
+                  Community
+                </Badge>
+              )}
+            </div>
             <p className="text-lg text-muted-foreground">
               {component.description}
             </p>
@@ -132,18 +173,22 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
             <Download className="h-4 w-4" />
             {component.downloads.toLocaleString()} downloads
           </span>
-          <span className="flex items-center gap-1.5">
-            <Heart className="h-4 w-4" />
-            {component.upvotes.toLocaleString()} upvotes
-          </span>
+          <UpvoteButton
+            slug={component.slug}
+            initialUpvoted={hasUpvoted}
+            initialCount={component.upvotes}
+            isAuthenticated={!!user}
+            size="sm"
+          />
           <Link
-            href={`/profile/${component.author.id}`}
+            href={component.author.id === "oonkoo-team" ? "/profile/oonkoo-team" : `/profile/${component.author.id}`}
             className="flex items-center gap-1.5 hover:text-foreground transition-colors"
           >
             <User className="h-4 w-4" />
             {component.author.name}
           </Link>
         </div>
+
       </div>
 
       {/* Preview Section */}
@@ -244,13 +289,35 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
               })}
             </span>
           </div>
-          <div className="flex justify-between p-4">
+          <div className="flex justify-between items-center p-4">
             <span className="text-muted-foreground">Author</span>
             <Link
-              href={`/profile/${component.author.id}`}
-              className="font-medium hover:text-primary transition-colors"
+              href={component.author.id === "oonkoo-team" ? "/profile/oonkoo-team" : `/profile/${component.author.id}`}
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
-              {component.author.name}
+              <Avatar className="h-6 w-6">
+                <AvatarImage
+                  src={
+                    component.author.id === "oonkoo-team"
+                      ? "/oonkoo-ui-icon.svg"
+                      : component.author.avatar || `https://avatar.vercel.sh/${component.author.id}`
+                  }
+                  alt={component.author.name}
+                />
+                <AvatarFallback className="text-xs">
+                  {component.author.name?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="font-medium">{component.author.name}</span>
+              {isOfficialTier(component.tier) ? (
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 bg-primary/10 text-primary border-primary/20">
+                  Official
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 bg-blue-500/10 text-blue-500 border-blue-500/20">
+                  Community
+                </Badge>
+              )}
             </Link>
           </div>
         </div>

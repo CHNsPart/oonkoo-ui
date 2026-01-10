@@ -9,6 +9,7 @@ import {
 } from "@kinde-oss/kinde-auth-nextjs/components";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,6 +23,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function UserMenu() {
   const { user, isAuthenticated, isLoading } = useKindeBrowserClient();
+  const { user: dbUser } = useCurrentUser();
 
   if (isLoading) {
     return <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />;
@@ -74,7 +76,7 @@ export function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/profile">
+          <Link href={dbUser ? `/profile/${dbUser.id}` : "/settings"}>
             <User className="mr-2 h-4 w-4" />
             Profile
           </Link>

@@ -1,4 +1,4 @@
-export type UserRole = "USER" | "CONTRIBUTOR" | "SELLER" | "ADMIN";
+export type UserRole = "USER" | "CONTRIBUTOR" | "SELLER" | "ADMIN" | "SUPER_ADMIN";
 
 export type SellerStatus =
   | "NOT_ELIGIBLE"

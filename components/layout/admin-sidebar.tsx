@@ -14,6 +14,9 @@ import {
   LogOut,
   Shield,
   Home,
+  Code2,
+  FileQuestion,
+  Crown,
 } from "lucide-react";
 import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
 
@@ -28,6 +31,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuBadge,
 } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
@@ -45,32 +49,17 @@ interface AdminSidebarProps {
     name: string | null;
     email: string;
     avatar: string | null;
+    role: string;
   };
+  pendingRequestsCount?: number;
 }
 
-const mainMenuItems = [
+// Overview menu items
+const overviewMenuItems = [
   {
     title: "Dashboard",
     href: "/admin",
     icon: LayoutDashboard,
-  },
-  {
-    title: "Components",
-    href: "/admin/components",
-    icon: Package,
-  },
-  {
-    title: "Review Queue",
-    href: "/admin/reviews",
-    icon: ClipboardList,
-  },
-];
-
-const managementMenuItems = [
-  {
-    title: "Users",
-    href: "/admin/users",
-    icon: Users,
   },
   {
     title: "Analytics",
@@ -79,7 +68,52 @@ const managementMenuItems = [
   },
 ];
 
-const settingsMenuItems = [
+// Content management menu items
+const contentMenuItems = [
+  {
+    title: "Components",
+    href: "/admin/components",
+    icon: Package,
+    description: "Manage all published components",
+  },
+  {
+    title: "Component Requests",
+    href: "/admin/requests",
+    icon: FileQuestion,
+    description: "Review user submissions",
+    showBadge: true,
+  },
+  {
+    title: "Review Queue",
+    href: "/admin/reviews",
+    icon: ClipboardList,
+    description: "Legacy review system",
+  },
+];
+
+// User management menu items
+const userMenuItems = [
+  {
+    title: "Users",
+    href: "/admin/users",
+    icon: Users,
+    description: "Manage user accounts",
+  },
+];
+
+// Development menu items (for testing components)
+const devMenuItems = [
+  {
+    title: "Dev Playground",
+    href: "/dev",
+    icon: Code2,
+    description: "Test & publish official components",
+    external: true,
+  },
+];
+
+// System menu items
+const systemMenuItems = [
   {
     title: "Settings",
     href: "/admin/settings",
@@ -87,7 +121,7 @@ const settingsMenuItems = [
   },
 ];
 
-export function AdminSidebar({ user }: AdminSidebarProps) {
+export function AdminSidebar({ user, pendingRequestsCount = 0 }: AdminSidebarProps) {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
@@ -96,6 +130,10 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
     }
     return pathname.startsWith(href);
   };
+
+  const isSuperAdmin = user.role === "SUPER_ADMIN";
+  const roleLabel = isSuperAdmin ? "Super Admin" : "Admin";
+  const RoleIcon = isSuperAdmin ? Crown : Shield;
 
   return (
     <Sidebar>
@@ -116,20 +154,23 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
             className="h-7 w-7 hidden dark:block"
           />
           <span className="font-semibold">OonkooUI</span>
-          <Badge variant="secondary" className="ml-1 text-xs">
-            <Shield className="h-3 w-3 mr-1" />
-            Admin
+          <Badge
+            variant={isSuperAdmin ? "default" : "secondary"}
+            className="ml-1 text-xs"
+          >
+            <RoleIcon className="h-3 w-3 mr-1" />
+            {isSuperAdmin ? "Team" : "Admin"}
           </Badge>
         </Link>
       </SidebarHeader>
 
       <SidebarContent>
-        {/* Main Menu */}
+        {/* Overview Section */}
         <SidebarGroup>
           <SidebarGroupLabel>Overview</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainMenuItems.map((item) => (
+              {overviewMenuItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton asChild isActive={isActive(item.href)}>
                     <Link href={item.href}>
@@ -143,12 +184,36 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Management Menu */}
+        {/* Content Management Section */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Content</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {contentMenuItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton asChild isActive={isActive(item.href)}>
+                    <Link href={item.href}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                  {item.showBadge && pendingRequestsCount > 0 && (
+                    <SidebarMenuBadge className="bg-primary text-primary-foreground">
+                      {pendingRequestsCount}
+                    </SidebarMenuBadge>
+                  )}
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* User Management Section */}
         <SidebarGroup>
           <SidebarGroupLabel>Management</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {managementMenuItems.map((item) => (
+              {userMenuItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton asChild isActive={isActive(item.href)}>
                     <Link href={item.href}>
@@ -162,12 +227,34 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Settings Menu */}
+        {/* Development Section - For testing components */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Development</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {devMenuItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton asChild isActive={isActive(item.href)}>
+                    <Link
+                      href={item.href}
+                      target={item.external ? "_blank" : undefined}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* System Section */}
         <SidebarGroup>
           <SidebarGroupLabel>System</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {settingsMenuItems.map((item) => (
+              {systemMenuItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton asChild isActive={isActive(item.href)}>
                     <Link href={item.href}>
@@ -211,7 +298,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
                       {user.name ?? "Admin"}
                     </span>
                     <span className="truncate text-xs text-muted-foreground">
-                      Administrator
+                      {roleLabel}
                     </span>
                   </div>
                   <ChevronsUpDown className="ml-auto h-4 w-4" />
@@ -223,17 +310,59 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
                 side="top"
                 sideOffset={4}
               >
+                {/* OonkooUI Team Section - Only for Super Admins */}
+                {isSuperAdmin && (
+                  <>
+                    <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                      OonkooUI Team
+                    </div>
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile/oonkoo-team">
+                        <Crown className="mr-2 h-4 w-4 text-amber-500" />
+                        Team Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dev">
+                        <Code2 className="mr-2 h-4 w-4" />
+                        Publish Official Components
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+
+                {/* Personal Section */}
+                <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                  Personal Account
+                </div>
                 <DropdownMenuItem asChild>
-                  <Link href={`/profile/${user.id}`}>View Profile</Link>
+                  <Link href={`/profile/${user.id}`}>
+                    View My Profile
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/admin/settings">Admin Settings</Link>
+                  <Link href="/dashboard">
+                    <Home className="mr-2 h-4 w-4" />
+                    My Dashboard
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    My Settings
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
+
+                {/* Admin Section */}
+                <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                  Administration
+                </div>
                 <DropdownMenuItem asChild>
-                  <Link href="/">
-                    <Home className="mr-2 h-4 w-4" />
-                    Back to App
+                  <Link href="/admin/settings">
+                    <Shield className="mr-2 h-4 w-4" />
+                    Admin Settings
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

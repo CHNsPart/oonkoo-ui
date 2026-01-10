@@ -15,10 +15,21 @@ datasource db {
 // ============================================
 
 enum UserRole {
-  USER
-  CONTRIBUTOR
-  SELLER
-  ADMIN
+  USER          // Standard free/pro users
+  CONTRIBUTOR   // Users who can submit component requests
+  SELLER        // Verified sellers with Stripe Connect
+  ADMIN         // Platform administrators (personal accounts)
+  SUPER_ADMIN   // OonkooUI Team system account
+}
+
+// Component Request Status for MVP workflow
+enum RequestStatus {
+  PENDING       // Just submitted, awaiting review
+  IN_REVIEW     // Admin is reviewing
+  TESTING       // Admin is testing in /dev
+  APPROVED      // Approved and published
+  REJECTED      // Rejected with feedback
+  CANCELLED     // Cancelled by requester
 }
 
 enum SellerStatus {
@@ -112,17 +123,19 @@ model User {
   profileComplete Boolean       @default(false)
 
   // Relations
-  subscription    Subscription?
-  components      Component[]   @relation("AuthorComponents")
-  upvotes         Upvote[]
-  purchases       Purchase[]    @relation("BuyerPurchases")
-  sales           Purchase[]    @relation("SellerPurchases")
-  badges          UserBadge[]
-  apiKeys         ApiKey[]
-  cliAuthSessions CliAuthSession[]
+  subscription        Subscription?
+  components          Component[]          @relation("AuthorComponents")
+  upvotes             Upvote[]
+  purchases           Purchase[]           @relation("BuyerPurchases")
+  sales               Purchase[]           @relation("SellerPurchases")
+  badges              UserBadge[]
+  apiKeys             ApiKey[]
+  cliAuthSessions     CliAuthSession[]
+  componentRequests   ComponentRequest[]   @relation("RequesterRequests")
+  reviewedRequests    ComponentRequest[]   @relation("ReviewerRequests")
 
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
 
   @@index([kindeId])
   @@index([email])
@@ -192,12 +205,13 @@ model Component {
   upvoteCount     Int               @default(0)     // Denormalized for performance
 
   // Relations
-  upvotes         Upvote[]
-  purchases       Purchase[]
+  upvotes            Upvote[]
+  purchases          Purchase[]
+  sourceRequest      ComponentRequest?    // Links back to the request if created from one
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  publishedAt     DateTime?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  publishedAt        DateTime?
 
   @@index([authorId])
   @@index([slug])
@@ -302,4 +316,69 @@ model CliAuthSession {
 
   @@index([sessionId])
   @@index([expiresAt])
+}
+
+// Component Request for MVP user submission workflow
+model ComponentRequest {
+  id                   String            @id @default(cuid())
+  requesterId          String
+  requester            User              @relation("RequesterRequests", fields: [requesterId], references: [id], onDelete: Cascade)
+  reviewerId           String?
+  reviewer             User?             @relation("ReviewerRequests", fields: [reviewerId], references: [id])
+
+  // Component Details (submitted by user)
+  name                 String
+  slug                 String            @unique
+  description          String            @db.Text
+  code                 String            @db.Text
+  previewCode          String?           @db.Text
+  previewImage         String?           // Screenshot or image URL
+
+  type                 ComponentType     @default(BLOCK)
+  tier                 ComponentTier     @default(COMMUNITY_FREE)
+  category             ComponentCategory @default(OTHER)
+  tags                 String[]          @default([])
+  dependencies         Json              @default("[]")
+
+  // For COMMUNITY_PAID requests
+  price                Decimal?          @db.Decimal(10, 2)
+
+  // Review Process
+  status               RequestStatus     @default(PENDING)
+  adminNotes           String?           @db.Text  // Internal notes for admins
+  rejectionReason      String?           @db.Text  // Feedback to user if rejected
+
+  // After approval, links to the published component
+  publishedComponentId String?           @unique
+  publishedComponent   Component?        @relation(fields: [publishedComponentId], references: [id])
+
+  // Multi-file upload support
+  files                ComponentRequestFile[]
+
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  reviewedAt           DateTime?
+
+  @@index([requesterId])
+  @@index([reviewerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Component Request Files - supports multi-file submissions
+model ComponentRequestFile {
+  id          String           @id @default(cuid())
+  requestId   String
+  request     ComponentRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  filename    String           // e.g., "lightboard.tsx", "types.ts"
+  filepath    String           // e.g., "ui/lightboard.tsx" (relative path for imports)
+  content     String           @db.Text
+  isMain      Boolean          @default(false)  // The main export component
+  order       Int              @default(0)      // For ordering in preview bundling
+
+  createdAt   DateTime         @default(now())
+
+  @@index([requestId])
+  @@unique([requestId, filepath])
 }
